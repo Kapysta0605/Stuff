@@ -1,0 +1,5 @@
+Author: Shavel <shavel.ilya@gmail.com>
+Date:   Tue Feb 7 12:11:52 2017 +0300
+
+    add.gitignore
+
