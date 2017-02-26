@@ -134,6 +134,32 @@ body{
     max-width: 75%;
     float: left;
 }
+.footer{
+    padding-top: 50px;
+    margin: auto;
+    max-width: 680px;
+    text-align: center;
+    color: #FFE1FF;
+    font-size: 60%;
+}
+.footer img{
+    max-width: 100%;
+}
+.VK{
+    max-height:20px;
+    max-width:20px;  
+    display: inline-block;
+}
+.Inst{
+    max-height:20px;
+    max-width:20px;  
+    display: inline-block;
+}
+.Skype{
+    max-height:20px;
+    max-width:20px;  
+    display: inline-block;
+}
 #aMain{
     color: #458B00;
 }
