@@ -97,6 +97,34 @@ body{
     font-weight: 300;
     text-shadow: 0 0 10px #FFF
 }
+
+.imagez img{
+    width: 100%;
+    opacity: 0.6;
+}
+.FROG{
+    width: 10vw;
+    height: auto;
+    position: fixed;
+    bottom: 10vw;
+    left: 0;
+}
+.SNOOP{
+    width: 10vw;
+    height: auto;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+.PEPE{
+    opacity: 0.3;
+    width: 10vw;
+    height: auto;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
 .main{
     max-width: 800px;
     margin: 0 auto;

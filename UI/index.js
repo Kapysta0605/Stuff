@@ -307,6 +307,7 @@ var articleRenderer = ( function(){
 		template.content.querySelector('#article-publname').textContent = article.author;
 		template.content.querySelector('#article-date').textContent = formatDate(article.createdAt);
 		var tags = template.content.querySelector('.article-tags');
+		tags.innerHTML = 'ТЭГИ: ';
 
 		for(i = 0; i < article.tags.length; i++){
 			var tmp = document.createElement('li');
