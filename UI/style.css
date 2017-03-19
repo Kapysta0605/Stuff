@@ -103,10 +103,10 @@ body{
     opacity: 0.6;
 }
 .FROG{
-    width: 10vw;
+    width: 15vw;
     height: auto;
     position: fixed;
-    bottom: 10vw;
+    bottom: 0;
     left: 0;
 }
 .SNOOP{
@@ -118,7 +118,7 @@ body{
 }
 .PEPE{
     opacity: 0.3;
-    width: 10vw;
+    width: 15vw;
     height: auto;
     position: fixed;
     bottom: 0;
