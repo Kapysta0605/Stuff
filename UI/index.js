@@ -434,13 +434,12 @@ function readMoreHandler(event){
 
 		tags.innerHTML = 'ТЭГИ: ';
 
-		if('tags' in article){
-			for(i = 0; i < article.tags.length; i++){
-				var tmp = document.createElement('li');
-				tmp.innerHTML = "<li>" + article.tags[i] + "</li>";
-				tags.appendChild(tmp);
-			}
+		for(i = 0; i < article.tags.length; i++){
+			var tmp = document.createElement('li');
+			tmp.innerHTML = "<li>" + article.tags[i] + "</li>";
+			tags.appendChild(tmp);
 		}
+		
 
     	document.querySelector('.article-list').appendChild(template.content.querySelector('.article').cloneNode(true));
 	} 
@@ -477,6 +476,9 @@ function addEvents(){
   		var tags = popularTags.allTags;
   		var tagSelector = template.content.querySelector('.input-tags');
   		tagSelector.innerHTML = '';
+  		var tmp1 = document.createElement('option');
+  		tmp1.innerHTML = '<option disabled>Возможные теги</option>';
+  		tagSelector.appendChild(tmp1);
   		tags.forEach(function(item){
   			var tmp = document.createElement('option');
   			tmp.innerHTML = '<option value=\'' + item + '\'>' + item + '</option>';
@@ -490,6 +492,7 @@ function addEvents(){
 			var text = document.forms.add.tags;
 			var tmp = text.value.split(' ');
 			var key = false;
+
 			tmp.forEach(function(item){
 				if(item == target){
 					key = true;
@@ -503,6 +506,7 @@ function addEvents(){
 					return item;
 				}).join(' ');
 			}
+			else if(target == 'Возможные теги');
 			else{
 				text.value += ' ' + target;
 			}
