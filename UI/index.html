@@ -20,25 +20,20 @@
 				</div>
 
 				<ul class="menu">
-					<a href="index.html" id="aMain">Главная</a>
-					<a href="" id="aAdd">Добавить</a>
-					<a href="" id="aSearch">Поиск</a>
+					<a id="aMain">Главная</a>
+					<a id="aAdd"></a>
+					<a id="aSearch">Поиск</a>
 				</ul>
 
-				<a href="">
-					<div class="log-info">
-						Профиль<br/>
-						<div id="username">
-							Nova
-						</div>
-					</div>
-				</a>
+				
+				<div class="log-info" alt = 'выйти'>
+				</div>
+				
 			</div>
 		</div>
 	</div>
-
+<!--
 	<div class="imagez">
-
 		<div class="PEPE">
 			<img src="content/PEPE.gif">
 		</div>
@@ -52,15 +47,17 @@
 		</div>
 
 	</div>
-	
+-->
 	<div class="main">
 		<div class="main-title">
 			<h1>Новости</h1>
 		</div>
 
-		<ul class="tag-list">
-			Популярно:
-		</ul>
+		<div class="tag-box">
+			<ul class="tag-list">
+			</ul>
+		</div>
+
 
 		<div class="article-list">
 
@@ -96,16 +93,16 @@
 
 	<template id="template-article">
 		<div class="article">
-			<h2 class="article-title"><a id="article-title" href="">Заголовок</a></h2>
-			<a href="">
-				<div class="article-img">
-					<img id="article-img" src="">
-				</div>
-			</a>
+			<h2 class="article-title"><a id="article-title">Заголовок</a></h2>
+			<div class="article-img">
+				<img id="article-img" src="">
+			</div>
 
-			<ul class="article-tags">
-				Тэги:
-			</ul>
+			<div class="article-tags-box">
+				<ul class="article-tags">
+					Тэги
+				</ul>
+			</div>
 
 			<div class="article-box">
 				<div class="article-summary">
@@ -126,14 +123,81 @@
 						</div>
 					</div>
 
-					<a href="https://lenta.ru/articles/2017/01/06/spacex/">
-						<div id="readMore">Читать полностью</div>
-					</a>
+					<div id="readMore">Читать полностью</div>
 				</div>
 			</div>
 		</div>
 	</template>
 
+	<template id="template-article-full">
+		<div class="article">
+			<h3 class="article-full-title"><a id="article-title">Заголовок</a></h3>
+			<div class="article-full-img">
+				<img id="article-full-img" src="">
+			</div>
+			
+			<div class="article-tags-box">
+				<ul class="article-tags">
+					Тэги
+				</ul>
+			</div>
+
+			<div class="article-box">
+				<div class="article-content">
+					<p>
+						Содержание статьи
+					</p>
+				</div>
+
+				<div class="article-footer">
+					<div class="article-footer-publ">
+						Опулбикованно:
+						<div id="article-publname">
+							Автор
+						</div>
+						,
+						<div id="article-date">
+							Дата
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</template>
+
+	<template id="template-add-article">
+		<div class="article">
+			<form name="add" class="article-box">
+				<h4>Название</h4>
+				<input maxlength='99'
+ type = "text" size = "70%" required class="input" name="title">
+
+ 				<h4>Изображение</h4>
+				<input
+ type = "text" size = "70%" class="input" name="img">
+
+				<h4>Тэги</h4>
+				<select class="input-tags">	
+					Опции тегов				
+				</select>
+
+				<textarea rows='2' cols='100'
+ type = "text" size = "70%" class="input" name="tags"></textarea>
+
+				<h4>Краткое описание</h4>
+				<textarea rows='2' cols='100' maxlength='199'
+ type = "text" size = "70%" required class="input" name="summary"></textarea>
+
+				<h4>Содержание</h4>
+				<textarea rows='10' cols='100'
+ type = "text" " required class="input" name="content"></textarea>
+
+ 				<input class='input-button' type="submit" value="Отправить" onclick="inputSubmitHandler()">
+ 				<input class='input-button' type="reset" value="Очистить">
+			</form>
+		</div>
+	</template>
 
 </body>
 </html>

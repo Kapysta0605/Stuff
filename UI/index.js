@@ -102,6 +102,8 @@ var articleContent = (function(){
 	},
 	];
 
+	var id = 11;
+
 	function getArticles(skip, top, filterConfig){
 		if(skip < 0 || top < 0) return undefined;
 
@@ -125,11 +127,6 @@ var articleContent = (function(){
 			return key;
 		});
 
-		articlesNew.sort(function(a, b){
-			if(a.createdAt < b.createdAt) return 1;
-			if(a.createdAt > b.createdAt) return -1;
-		})
-
 		return articlesNew.slice(skip, skip + top);
 	}
 
@@ -137,31 +134,34 @@ var articleContent = (function(){
 		for(var i = 0; i < articles.length; i++){
 			if(articles[i].id == id)
 				return articles[i];
-			return undefined;
 		}
+		return undefined;
 	}
 	
 	function validateArticle(article){
-		if(typeof article.id != "string" || 
-			typeof article.title != "string"  || article.title.length == 0 || article.title.length > 99 ||
-			typeof article.summary != "string" || article.summary.length > 199 ||
-			typeof article.createdAt != "object" ||
-			typeof article.author != "string" || article.author.length == 0 ||
-			typeof article.createdAt != "object" ||
-			typeof article.content != "string" || article.content.length == 0) return false;
-		for(i = 0; i < tags.length; i++)
-			if(typeof tags[i] != "string" || tags[i].length == 0) return false;
+		if( article.title.length == 0 || article.title.length > 99 ||
+			article.summary.length == 0 || article.summary.length > 199  || 
+			article.author.length == 0 || article.content.length == 0){
+			return false;
+		}
+		tags = article.tags;
+		for(i = 0; i < tags.length; i++){
+			if(tags[i].length == 0){
+				tags = tags.splice(i,1);
+			}
+		}
 		return true;
 	}
 
 	function addArticle(article){
-		if (getArticle(article.id)) return false;
+		if (getArticle(article.id)){
+			return false;
+		}
 		if(validateArticle(article)){
-			articles.push(article);
-			articles.sort(function(a, b){
-				if(a.createdAt < b.createdAt) return 1;
-				if(a.createdAt > b.createdAt) return -1;
-			})
+			article.id = id;
+			id++;
+			articles.unshift(article);
+			
 			return true;
 		}
 		return false;
@@ -221,15 +221,17 @@ var articleContent = (function(){
 
 
 	return {
+		getArticle: getArticle,
 		getArticles: getArticles,
 		removeArticle: removeArticle,
 		editArticle: editArticle,
-		getArticles: getArticles
+		addArticle: addArticle
 	};
 }());
 
 var popularTags = (function(){
 	var tags = [];
+	var allTags = [];
 
 	function init(num){
 		if(typeof num != "number") return false;
@@ -243,16 +245,16 @@ var popularTags = (function(){
 		}
 		tmp.sort();
 
-		console.log(tmp);
-
 		var a = 0;
 		if(tmp.length > 1){
+			allTags.push(tmp[a]);
 			for(var i = 1; i < tmp.length; i++){
 				if(tmp[i] != tmp[i - 1] || i == (tmp.length - 1)){
 					if((i - a) >= num){
 						tags.push(tmp[a]);
 						a = i;
 					}
+					allTags.push(tmp[i]);
 					a = i;
 				}
 			}
@@ -261,7 +263,19 @@ var popularTags = (function(){
 			tags.push(tmp[a]);
 		}
 
+		return true;
+	}
+
+	function removeTagsFromDOM(){
+		document.querySelector('.tag-list').innerHTML = '';
+		return true;
+	}
+
+	function insertTagsInDOM(){
 		var tags1 = document.querySelector('.tag-list');
+
+		tags1.textContent = 'Популярно: '
+
 		for(i = 0; i < tags.length; i++){
 			var tmp1 = document.createElement('li');
 			tmp1.innerHTML = "<li>" + tags[i] + "</li>";
@@ -272,7 +286,10 @@ var popularTags = (function(){
 	}
 
 	return{
-		init: init
+		allTags: allTags,
+		init: init,
+		removeTagsFromDOM: removeTagsFromDOM,
+		insertTagsInDOM: insertTagsInDOM
 	}
 }());
 
@@ -289,6 +306,7 @@ var articleRenderer = ( function(){
 		var articlesNodes = renderArticles(articles);
 		articlesNodes.forEach(function (node) {
 			ARTICLE_LIST.appendChild(node);
+			ARTICLE_LIST.lastElementChild.addEventListener('click', readMoreHandler);
 		});
 	}
 
@@ -308,11 +326,13 @@ var articleRenderer = ( function(){
 		template.content.querySelector('#article-date').textContent = formatDate(article.createdAt);
 		var tags = template.content.querySelector('.article-tags');
 		tags.innerHTML = 'ТЭГИ: ';
-
-		for(i = 0; i < article.tags.length; i++){
-			var tmp = document.createElement('li');
-			tmp.innerHTML = "<li>" + article.tags[i] + "</li>";
-			tags.appendChild(tmp);
+		
+		if(Boolean(article.tags)){
+			for(i = 0; i < article.tags.length; i++){
+				var tmp = document.createElement('li');
+				tmp.innerHTML = "<li>" + article.tags[i] + "</li>";
+				tags.appendChild(tmp);
+			}
 		}
 
 		return template.content.querySelector('.article').cloneNode(true);
@@ -334,12 +354,183 @@ var articleRenderer = ( function(){
     };
  }());
 
+var userLog = ( function(){
+	var user;
+	var userList = [
+	{
+		login: 'Nova',
+		password: 'kappa123'
+	},
+	{
+		login: 'Verpad',
+		password: 'eliGigle'
+	},
+	{
+		login: 'NightFucker',
+		password: 'krappa'
+	},
+	];
+
+	function init(login, password){
+		for(var i = 0; i < userList.length; i++){
+			if(userList[i].login == login){
+				if(userList[i].password == password){
+					user = login;
+					return true;
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+
+	function renderUser(){
+		if(Boolean(user)){
+			document.querySelector('#aAdd').textContent = 'Добавить';
+			document.querySelector('.log-info').innerHTML = 'Профиль<br/><div id="username">' + user + '</div>';
+		}
+		else{
+			document.querySelector('#aAdd').textContent = '';
+			document.querySelector('.log-info').textContent = 'ВОЙТИ';
+			document.querySelector('#username').textContent = '';
+		}
+	}
+
+	function username(){
+		var item = user;
+		return item;
+	}
+
+	return{
+		username: username,
+		init: init,
+		renderUser: renderUser
+	};
+}());
+
+function readMoreHandler(event){
+	var target = event.target;
+	if(target == this.querySelector('#readMore') || target == this.querySelector('#article-img') || target == this.querySelector('#article-title')){    	
+    	var id = this.dataset.id;
+    	var article = articleContent.getArticle(id);
+
+    	articleRenderer.removeArticlesFromDom();
+    	popularTags.removeTagsFromDOM();
+    	document.querySelector('.main-title').firstElementChild.textContent = '';
+
+    	var template = document.querySelector('#template-article-full');
+    	template.content.querySelector('.article').dataset.id = article.id;
+		template.content.querySelector('#article-title').textContent = article.title;
+		template.content.querySelector('#article-full-img').src = article.img;
+		template.content.querySelector('.article-content').textContent = article.content;
+		template.content.querySelector('#article-publname').textContent = article.author;
+		template.content.querySelector('#article-date').textContent = formatDate(article.createdAt);
+		var tags = template.content.querySelector('.article-tags');
+
+		function formatDate(d) {
+			return d.getDate() + '.' + (d.getMonth() + 1) + '.' + d.getFullYear() + ' ' +
+			d.getHours() + ':' + d.getMinutes();
+		}
+
+		tags.innerHTML = 'ТЭГИ: ';
+
+		if('tags' in article){
+			for(i = 0; i < article.tags.length; i++){
+				var tmp = document.createElement('li');
+				tmp.innerHTML = "<li>" + article.tags[i] + "</li>";
+				tags.appendChild(tmp);
+			}
+		}
+
+    	document.querySelector('.article-list').appendChild(template.content.querySelector('.article').cloneNode(true));
+	} 
+}
 
 document.addEventListener('DOMContentLoaded', startApp);
 function startApp(){   
 	articleRenderer.init();
-	renderArticles(articleContent.getArticles());
+	renderArticles();
 	popularTags.init(2);
+	popularTags.insertTagsInDOM();
+	userLog.init('Nova','kappa123');
+	userLog.renderUser();
+
+	addEvents();
+}
+
+function addEvents(){
+	document.querySelector('#aMain').addEventListener('click', aMain);
+	document.querySelector('#aAdd').addEventListener('click', aAdd);
+
+	function aMain(event){
+		document.querySelector('.main-title').firstElementChild.textContent = 'НОВОСТИ';
+		popularTags.insertTagsInDOM();
+		renderArticles(articleContent.getArticles());
+	}
+
+	function aAdd(event){
+		document.querySelector('.main-title').firstElementChild.textContent = 'Добавить новость';
+		popularTags.removeTagsFromDOM();
+		articleRenderer.removeArticlesFromDom();
+
+  		var template = document.querySelector('#template-add-article');
+  		var tags = popularTags.allTags;
+  		var tagSelector = template.content.querySelector('.input-tags');
+  		tagSelector.innerHTML = '';
+  		tags.forEach(function(item){
+  			var tmp = document.createElement('option');
+  			tmp.innerHTML = '<option value=\'' + item + '\'>' + item + '</option>';
+  			tagSelector.appendChild(tmp);
+  		});
+		document.querySelector('.article-list').appendChild(template.content.querySelector('.article').cloneNode(true));
+		tags = document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
+
+		function tagSelectorHandler(event){
+			var target = event.currentTarget.value;
+			var text = document.forms.add.tags;
+			var tmp = text.value.split(' ');
+			var key = false;
+			tmp.forEach(function(item){
+				if(item == target){
+					key = true;
+				}
+			});
+			if(key){
+				text.value = tmp.map(function(item){
+					if(item == target){
+						return '';
+					}
+					return item;
+				}).join(' ');
+			}
+			else{
+				text.value += ' ' + target;
+			}
+		}
+	}
+}
+
+function inputSubmitHandler(){
+	var form = document.forms.add;
+	if(form.title.value != "" && form.summary.value != "" && form.content.value != ""){
+		var article = {
+			id: '0',
+			title: form.title.value,
+			img: "",
+			summary: form.summary.value,
+			content: form.content.value,
+			createdAt: new Date(),
+			author:  userLog.username(),
+		}
+		article.img = form.img.value;
+
+		article.tags = form.tags.value.split(' ');
+
+		console.log(form.tags.value);
+
+		articleContent.addArticle(article);
+		renderArticles();
+	}
 }
 
 function renderArticles() {

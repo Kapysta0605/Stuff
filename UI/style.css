@@ -1,10 +1,11 @@
 *{
     box-sizing: border-box;
-    margin 0;
-    padding 0;
+    margin: 0;
+    padding: 0;
     font-family: Comfortaa;
     color:white;
     text-decoration: none;
+    cursor: default;
 }
 h1 {
     text-transform: uppercase;
@@ -24,7 +25,18 @@ h2 {
     max-width: 90%;
     margin: auto;
 }
+h3 {
+    text-transform: uppercase;
+    font-size: 80%;
+    font-weight: 300;
+    text-align: center;
+    padding: 2%;
+    max-width: 90%;
+    margin: auto;
+    color: white;
+}
 h2 a{
+    cursor: pointer;
     color: white;
 }
 h2 a:hover{
@@ -82,6 +94,7 @@ body{
     text-shadow: 0 0 10px #FFF;
 }
 .log-info{
+    cursor: pointer;
     position: relative;
     text-align: center;
     width:20%;
@@ -148,6 +161,8 @@ body{
     margin-bottom: -20px;   
     padding-bottom:10px;
     padding-top:5px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 .tag-list li{
     display: inline-block;
@@ -162,6 +177,13 @@ body{
     margin-top: 20px;
 }
 .article-img{
+    cursor: pointer;
+    transition: 0.5s ease;
+    max-width:90%;
+    height: auto;
+    margin: 0 auto;
+}
+.article-full-img{
     transition: 0.5s ease;
     max-width:90%;
     height: auto;
@@ -179,6 +201,10 @@ body{
     margin:auto;
     text-transform: none;
 }
+.article-tags-box{
+    width: 90%;
+    margin: 0 auto;
+}
 .article-tags{
     font-size: 30%;
 }
@@ -192,6 +218,13 @@ body{
 }
 
 .article-summary{
+    max-width:100%;
+    margin: auto;
+    color:white;
+    font-size: 40%;
+    font-weight: 300;
+}
+.article-content{
     max-width:100%;
     margin: auto;
     color:white;
@@ -241,18 +274,21 @@ body{
     display: inline-block;
 }
 #aMain{
+    cursor: pointer;
     color: #458B00;
 }
 #aMain:hover{
     color: #7FFF00;
 }
 #aAdd{
+    cursor: pointer;
     color: #CDCD00;
 }
 #aAdd:hover{
     color: #FFFF00;
 }
 #aSearch{
+    cursor: pointer;
     color:#CD00CD;    
 }
 #aSearch:hover{
@@ -288,6 +324,7 @@ body{
     display:inline;
 }
 #readMore{
+    cursor: pointer;
     display: inline;
     font-size: 30%;
     font-weight: 400;
@@ -297,3 +334,28 @@ body{
 #readMore:hover{
     color: #8B008B;
 }
+#article-img{
+    cursor: pointer;
+}
+
+.input{
+    cursor: text;
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+}
+.input-tags{
+    cursor: text;
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+}
+.input-button{
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.7); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    color:black;
+    float: right;
+}
+
