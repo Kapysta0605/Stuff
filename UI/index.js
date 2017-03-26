@@ -991,12 +991,10 @@ function logInfoAddEvents(){
 		var template = document.querySelector('#template-login');
 		document.querySelector('.article-list').appendChild(template.content.querySelector('.login-background').cloneNode(true));
 	}
-
-	function loginSubmitHandler(){
-		userLog.init(document.forms.login.login, document.forms.login.password);
-		mainPage.loadMainPage();
-	}
 }
-
+function loginSubmitHandler(){
+	userLog.init(document.forms.login.login.value, document.forms.login.password.value);
+	mainPage.loadMainPage();
+}
 
 
