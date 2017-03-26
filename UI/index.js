@@ -837,7 +837,7 @@ function addEvents(){
 	function hideMemes(){
 		document.querySelector('.logoBox').removeEventListener('mouseout', showMemes);
 		var template = document.querySelector('#MEMES');		
-		document.body.style.background = "url(\"content/Background1.png\")";
+		document.body.style.background = "";
 		document.querySelector('.imagez').innerHTML = '';
 		document.querySelector('.logoBox').addEventListener('mouseover', showMemes);
 	}
