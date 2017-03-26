@@ -49,6 +49,8 @@
 	</div>
 -->
 	<div class="main">
+		<div class="search">
+		</div>
 		<div class="main-title">
 			<h1>Новости</h1>
 		</div>
@@ -89,6 +91,8 @@
 			</a>
 		</div>
 	</div>
+
+
 
 
 	<template id="template-article">
@@ -161,6 +165,9 @@
 						</div>
 					</div>
 
+					<button id='article-delete'>Удалить</button>
+					<button id='article-change'>Изменить</button>
+
 				</div>
 			</div>
 		</div>
@@ -195,6 +202,49 @@
 
  				<input class='input-button' type="submit" value="Отправить" onclick="inputSubmitHandler()">
  				<input class='input-button' type="reset" value="Очистить">
+			</form>
+		</div>
+	</template>
+
+	<template id="template-search">
+		<form class='search-form' name='search'>
+			<a>Выберите дату:
+
+				<input class='search-button' type="reset" value="Очистить">
+				<input class='search-button-accept' type="button" value="Применить" >
+
+				<p> от <input class='date-input' type="date" name="createdAfter"> до <input class='date-input' type="date" name="createdBefore"></p>
+			</a>
+
+			<a>Выберите автора</a>
+			<select class="search-author" name='author'>	
+				Опции авторов				
+			</select>
+
+			<br/>
+			<a>Тэги</a>
+			<select class="search-tags">	
+				Опции тегов				
+			</select>
+
+			<textarea readonly rows='2' cols='70' type = "text" size = "70%" class="search-input" name="tags">
+
+			</textarea>
+
+		</form>
+	</template>
+
+	<template id="template-login">
+	<div class="login-background">
+			<form class='login-form' name='login'>
+				<h2 class='login-h2'>Логин</h2>
+				<input type = "text" size = "30%" required class="login-input" name="login">
+
+				<h2 class='login-h2'>Пароль</h2>
+				<input type = "password" size = "30%" required class="login-input" name="password">
+
+				<h2><input class='login-button' type="submit" value="Войти" onclick="loginSubmitHandler()">
+ 				<input class='reset-button' type="reset" value="Очистить"></h2>
 			</form>
 		</div>
 	</template>

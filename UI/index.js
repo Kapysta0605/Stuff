@@ -16,7 +16,7 @@ var articleContent = (function(){
 		summary: 'Кто кого заборет: викинг, рыцарь или самурай — обзор For Honor',
 		img: 'http://static2.cdn.ubi.com/ncsa/forhonor/website/og/ForHonor_og_1200x630.jpg',
 		createdAt: new Date('2017-03-06T21:29:00'),
-		author: 'Nova',
+		author: 'Стасик',
 		tags:["ubisoft", "forHonor", "games", "vikings"],
 		content:'В мире For Honor бок о бок живут рыцари, викинги и самураи. Все у них было хорошо, но из-за нехватки ресурсов началась тысячелетняя война. В это время появляется некая загадочная женщина и усугубляет ситуацию своими подстрекательствами. Вот так скучно и наивно происходит знакомство игрока с одиночной кампанией. В Ubisoft даже не пытаются заигрывать с историчностью, ведь в качестве основы использовались достойные второсортных пеплумов стереотипы, а не каноничные образы. Так и появились в игре полуголые викинги с рожками и самураи с толстенными железными пластинами на груди. Разработчики выбрали великолепный сеттинг и даже попытались как-то объяснить, почему эти фракции воюют между собой. Но, похоже, на этом запал создателей пропал, и ничего путного из истории For Honor не вышло. Есть три героя от разных сторон конфликта и злобный антагонист, которого нужно победить. По ходу будут встречаться нестандартные ситуации и боссы уровней, которые как-то разбавляют геймплей, но у игры и это плохо получается.'
 	},
@@ -56,7 +56,7 @@ var articleContent = (function(){
 		summary: 'В Австралии обнаружили новый вид гигантских динозавров',
 		img: 'http://svopi.ru/uploads/posts/2015-12/1449668589_1.jpg',
 		createdAt: new Date('2017-03-06T21:29:00'),
-		author: 'Nova',
+		author: 'Verpad',
 		tags:["dinosaurs", "australia"],
 		content:'Австралийские ученые обнаружили на континенте новый вид огромных травоядных динозавров — саваннозавров (Savannasaurus). Об этом говорится в статье, опубликованной в журнале Scientific Reports. Рост динозавра соответствовал таковому у современного жирафа, а длина его тела равнялась 15 метрам. Открытый исследователями вид относится к роду титанозавров. По мнению австралийсих палеонтологов, древние рептилии обитали на континенте порядка 95-98 миллионов лет назад. Ученые предполагают, что титанозавры в те времена были распространены по всей планете. В пользу этой гипотезы говорят останки представителей данного рода, обнаруженные в Южной Америке. При этом процесс расселения древних рептилий происходил не позже 105 миллионов лет назад. Именно тогда глобальное потепление разрушило естественный сухопутный путь животных из Южной Америки в Австралию через Антарктиду. Австралийские палеонтологи вместе с коллегами продолжат раскопки для того, чтобы подтвердить данную теорию.' 
 	},
@@ -76,7 +76,7 @@ var articleContent = (function(){
 		summary: 'Как издевательства над роботами приведут к краху человечества',
 		img: 'https://k60.kn3.net/taringa/5/D/5/A/0/4/parBUX/5A8.jpg',
 		createdAt: new Date('2017-03-06T21:29:00'),
-		author: 'Nova',
+		author: 'Verpad',
 		tags:["robots", "computerScience"],
 		content:'На этой неделе Boston Dynamics на закрытом показе продемонстрировала своего нового робота — Handler. Его побаиваются сами создатели: говорят, что он вселяет ужас. Однако это далеко не самая пугающая разработка. В арсенале еще имеются робот-таракан, древолаз, прыгун на колесах и, конечно же, всем известные «собаки». «Лента.ру» вспомнила, над какими машинами работала американская компания и на что способны их роботы. Главная особенность Handle в том, что робот передвигается на двух колесах, как на сегвее. Его создатели объясняют, что это эксперимент по сочетанию колес и конечностей с динамической системой балансировки. Помимо того, что робот, по словам представителей компании, «нагоняет ужас», он способен переносить достаточно тяжелые грузы и перепрыгивать через препятствия.' 
 	},
@@ -96,7 +96,7 @@ var articleContent = (function(){
 		summary: 'Белорусы показали на выставке в ОАЭ противодроновую винтовку',
 		img: 'https://content.onliner.by/news/970x485/c5643e3bc3fc03f85d23fca7bccf8a1b.jpeg',
 		createdAt: new Date('2017-03-06T21:29:00'),
-		author: 'Nova',
+		author: 'Хофр',
 		tags:["drones", "rifles", "potatoe"],
 		content:'Белорусы показали на выставке в ОАЭ противодроновую винтовку' 
 	},
@@ -104,25 +104,47 @@ var articleContent = (function(){
 
 	var id = 11;
 
+	var authors = [];
+
 	function getArticles(skip, top, filterConfig){
 		if(skip < 0 || top < 0) return undefined;
 
 		skip = skip || 0;
 		top = top || 10;
-		filterConfig = filterConfig || 0;
 
 		var articlesNew =  articles.filter(function(elem){
 			key = true;
-			if(filterConfig != 0){
-				if(filterConfig.author && filterConfig.author != elem.author) key = false;
-				if(filterConfig.author && filterConfig.createdAtBeg >= elem.createdAt || filterConfig.createdAtEnd <= elem.createdAt) 
+			if(Boolean(filterConfig)){
+
+				if(Boolean(filterConfig.author) && filterConfig.author != elem.author){
 					key = false;
-				if(filterConfig.tags){
-					var tmp = elem.tags.slice().sort();
-					filterConfig.tags.sort;
-					if(tmp != filterConfig.tags)
-						key = false;
 				}
+
+				if(Boolean(filterConfig.createdAfter) && filterConfig.createdAfter >= elem.createdAt || 
+				   Boolean(filterConfig.createdBefore) && filterConfig.createdBefore <= elem.createdAt){ 
+				   	alert(2);
+					key = false;
+				}
+
+				if(Boolean(filterConfig.tags)){
+					var tmp = elem.tags.slice().sort();
+					console.log(tmp);
+
+					var tags = filterConfig.tags.slice().sort();
+					console.log(tags);
+					for(var i = 0; i < tags.length; i++){
+						var key1 = false;
+						for(var j = 0; j < tmp.length; j++){
+							if(tmp[j] == tags[i]){
+								key1 = true;
+							}
+						}
+						if(!key1){
+							key = false;
+						}
+					}
+				}
+
 			}
 			return key;
 		});
@@ -145,9 +167,9 @@ var articleContent = (function(){
 			return false;
 		}
 		tags = article.tags;
-		for(i = 0; i < tags.length; i++){
-			if(tags[i].length == 0){
-				tags = tags.splice(i,1);
+		for(var i = 0; i < tags.length; i++){
+			if(tags[i].length == 0 || ~tags[i].indexOf(' ')){
+				return false;
 			}
 		}
 		return true;
@@ -161,7 +183,22 @@ var articleContent = (function(){
 			article.id = id;
 			id++;
 			articles.unshift(article);
+
+			var author = article.author;
+			var key = true;
 			
+			authors.forEach(function(item){
+				if(item == author){
+					key = false;
+				}
+			});
+
+			if(key){
+				authors.push(author);
+			}
+
+			authors.sort();
+
 			return true;
 		}
 		return false;
@@ -172,7 +209,7 @@ var articleContent = (function(){
 		if(tmp){
 			for(var val in article){
 				if( val == "title"){
-					if(typeof article[val] == "string" && article[val].length != 0){
+					if(article[val].length != 0){
 						if(article[val].length > 99) return false;
 						tmp.title = article[val];
 					}
@@ -180,21 +217,20 @@ var articleContent = (function(){
 				}
 
 				else if( val == "summary"){
-					if(typeof article[val] == "string" && article[val].length != 0){
-						if(article[val].length > 199) return false;
+					if(article[val].length != 0 && article[val].length > 199){
 						tmp.summary = article[val];
 					}
 					else return false;
 				}
 
 				else if( val == "content"){
-					if(typeof article[val] == "string" && article[val].length != 0)
+					if(article[val].length != 0)
 						tmp.content = article[val];
 					else return false;
 				}
 
 				else if( val == "tags"){
-					if(typeof article[val] == "object" && article[val].length){
+					if(article[val].length != 0){
 						tmp.tags = article[val].slice();
 					}
 					else return false;
@@ -202,7 +238,6 @@ var articleContent = (function(){
 
 				else if (val == "img")
 					tmp.img == article[val];
-				else return false;
 			}
 			return true;
 		}
@@ -219,8 +254,26 @@ var articleContent = (function(){
 		return false;
 	}
 
+	function authorsInit(){
+		articles.forEach(function(item){
+			var author = item.author;
+			var key = true;
+			for(var i = 0; i < authors.length; i++){
+				if(authors[i] == author){
+					key = false;
+				}
+			}
+			if(key){
+				authors.push(author);
+			}
+		});
+		authors.sort();
+	}
 
 	return {
+		count: articles.length,
+		authors: authors,
+		authorsInit: authorsInit,
 		getArticle: getArticle,
 		getArticles: getArticles,
 		removeArticle: removeArticle,
@@ -376,39 +429,48 @@ var userLog = ( function(){
 			if(userList[i].login == login){
 				if(userList[i].password == password){
 					user = login;
+					renderUser();
 					return true;
 				}
 				return false;
 			}
 		}
+		if(!Boolean(login)){
+			user = undefined;
+		}
+		renderUser();
 		return false;
 	}
 
 	function renderUser(){
 		if(Boolean(user)){
 			document.querySelector('#aAdd').textContent = 'Добавить';
+			document.querySelector('.log-info').style.fontSize = '50%';
 			document.querySelector('.log-info').innerHTML = 'Профиль<br/><div id="username">' + user + '</div>';
 		}
 		else{
 			document.querySelector('#aAdd').textContent = '';
-			document.querySelector('.log-info').textContent = 'ВОЙТИ';
-			document.querySelector('#username').textContent = '';
+			document.querySelector('.log-info').style.fontSize = '100%';
+			document.querySelector('.log-info').innerHTML = 'Войти';
 		}
 	}
 
 	function username(){
-		var item = user;
+		var item;
+		if(Boolean(user)){
+			item = user.substring(0);
+		}
 		return item;
 	}
 
 	return{
 		username: username,
-		init: init,
-		renderUser: renderUser
+		init: init
 	};
 }());
 
 function readMoreHandler(event){
+	window.onscroll = 0;
 	var target = event.target;
 	if(target == this.querySelector('#readMore') || target == this.querySelector('#article-img') || target == this.querySelector('#article-title')){    	
     	var id = this.dataset.id;
@@ -442,17 +504,117 @@ function readMoreHandler(event){
 		
 
     	document.querySelector('.article-list').appendChild(template.content.querySelector('.article').cloneNode(true));
+
+    	document.querySelector('#article-delete').addEventListener('click', articleFullDeleteHandler);
+    	document.querySelector('#article-change').addEventListener('click', articleFullChangeHandler);
+
+    	function articleFullDeleteHandler(){
+    		articleContent.removeArticle(document.querySelector('.article').dataset.id);
+    		mainPage.loadMainPage();
+    	}
+
+    	function articleFullChangeHandler(){
+    		var id = document.querySelector('.article').dataset.id;
+    		var article = articleContent.getArticle(id);
+
+
+    		window.onscroll = 0;
+    		document.querySelector('.main-title').firstElementChild.textContent = 'Изменить новость';
+    		popularTags.removeTagsFromDOM();
+    		articleRenderer.removeArticlesFromDom();
+
+    		var template = document.querySelector('#template-add-article');
+    		template.content.querySelector('.article').dataset.id = article.id;
+    		var tags = popularTags.allTags;
+    		var tagSelector = template.content.querySelector('.input-tags');
+    		tagSelector.innerHTML = '';
+    		var tmp1 = document.createElement('option');
+    		tmp1.innerHTML = '<option disabled>Возможные теги</option>';
+    		tagSelector.appendChild(tmp1);
+    		tags.forEach(function(item){
+    			var tmp = document.createElement('option');
+    			tmp.innerHTML = '<option value=\'' + item + '\'>' + item + '</option>';
+    			tagSelector.appendChild(tmp);
+    		});
+
+			template.content.querySelector('.input-button').setAttribute('onclick', "changeSubmitHandler()");
+
+    		document.querySelector('.article-list').appendChild(template.content.querySelector('.article').cloneNode(true));
+			document.forms.add.title.value = article.title;
+			document.forms.add.summary.value = article.summary;
+			document.forms.add.content.value = article.content;
+			document.forms.add.img.value = article.img;
+			document.forms.add.tags.value = article.tags.join(' ');
+
+    		document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
+
+    		function tagSelectorHandler(event){
+    			var target = event.currentTarget.value;
+    			var text = document.forms.add.tags;
+    			var tmp = text.value.split(' ');
+    			var key = false;
+
+    			tmp.forEach(function(item){
+    				if(item == target){
+    					key = true;
+    				}
+    			});
+    			if(key){
+    				text.value = tmp.map(function(item){
+    					if(item == target){
+    						return '';
+    					}
+    					return item;
+    				}).join(' ');
+    			}
+    			else if(target == 'Возможные теги');
+    			else{
+    				text.value += ' ' + target;
+    			}
+    		}
+    	}	
 	} 
+}
+
+function changeSubmitHandler(){
+	var form = document.forms.add;
+	if(form.title.value != "" && form.summary.value != "" && form.content.value != ""){
+		var article = {
+			id: '0',
+			title: form.title.value,
+			img: "",
+			summary: form.summary.value,
+			content: form.content.value,
+			createdAt: new Date(),
+			author:  userLog.username(),
+		}
+		article.img = form.img.value;
+
+		var tags = form.tags.value.split(' ');
+
+		for(var i = 0; i < tags.length; i++){
+			if(tags[i].length == 0){
+				tags.splice(i,1);
+				i--;
+			}
+		}
+
+		article.tags = tags;
+		article.id = document.querySelector('.article').dataset.id;
+
+		articleContent.editArticle(article.id, article);
+
+		mainPage.loadMainPage();
+	}
 }
 
 document.addEventListener('DOMContentLoaded', startApp);
 function startApp(){   
 	articleRenderer.init();
-	renderArticles();
 	popularTags.init(2);
-	popularTags.insertTagsInDOM();
 	userLog.init('Nova','kappa123');
-	userLog.renderUser();
+	articleContent.authorsInit();
+	mainPage.loadMainPage();
 
 	addEvents();
 }
@@ -460,14 +622,15 @@ function startApp(){
 function addEvents(){
 	document.querySelector('#aMain').addEventListener('click', aMain);
 	document.querySelector('#aAdd').addEventListener('click', aAdd);
+	document.querySelector('#aSearch').addEventListener('click', aSearchClosed);
+	logInfoAddEvents();
 
 	function aMain(event){
-		document.querySelector('.main-title').firstElementChild.textContent = 'НОВОСТИ';
-		popularTags.insertTagsInDOM();
-		renderArticles(articleContent.getArticles());
+		mainPage.loadMainPage();
 	}
 
 	function aAdd(event){
+		window.onscroll = 0;
 		document.querySelector('.main-title').firstElementChild.textContent = 'Добавить новость';
 		popularTags.removeTagsFromDOM();
 		articleRenderer.removeArticlesFromDom();
@@ -485,7 +648,7 @@ function addEvents(){
   			tagSelector.appendChild(tmp);
   		});
 		document.querySelector('.article-list').appendChild(template.content.querySelector('.article').cloneNode(true));
-		tags = document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
+		document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
 
 		function tagSelectorHandler(event){
 			var target = event.currentTarget.value;
@@ -512,6 +675,121 @@ function addEvents(){
 			}
 		}
 	}
+
+	function aSearchClosed(event){
+		this.removeEventListener('click', aSearchClosed);
+		this.addEventListener('click', aSearchOpened);
+
+  		var template = document.querySelector('#template-search');
+
+  		var tags = popularTags.allTags;
+  		var tagSelector = template.content.querySelector('.search-tags');
+  		tagSelector.innerHTML = '';
+  		var tmp1 = document.createElement('option');
+  		tmp1.innerHTML = '<option disabled>Возможные теги</option>';
+  		tagSelector.appendChild(tmp1);
+  		tags.forEach(function(item){
+  			var tmp = document.createElement('option');
+  			tmp.innerHTML = '<option value=\'' + item + '\'>' + item + '</option>';
+  			tagSelector.appendChild(tmp);
+  		});
+
+  		var authors = articleContent.authors;
+  		var authorSelector = template.content.querySelector('.search-author');
+  		authorSelector.innerHTML = '';
+  		var tmp1 = document.createElement('option');
+  		tmp1.innerHTML = '<option disabled>Возможные авторы</option>';
+  		authorSelector.appendChild(tmp1);
+  		authors.forEach(function(item){
+  			var tmp = document.createElement('option');
+  			tmp.innerHTML = '<option value=\'' + item + '\'>' + item + '</option>';
+  			authorSelector.appendChild(tmp);
+  		});
+
+  		document.querySelector('.search').innerHTML = '';
+		document.querySelector('.search').appendChild(template.content.querySelector('.search-form').cloneNode(true));
+
+		document.forms.search.createdAfter.addEventListener('change', createdAfterHandler);
+		document.forms.search.createdBefore.addEventListener('change', createdBeforeHandler);
+
+		tags = document.querySelector('.search-tags').addEventListener('change', tagSelectorHandler);
+
+		document.querySelector('.search-button-accept').addEventListener('click', filter);
+
+		function tagSelectorHandler(event){
+			var target = event.currentTarget.value;
+			var text = document.forms.search.tags;
+			var tmp = text.value.split(' ');
+			var key = false;
+
+			tmp.forEach(function(item){
+				if(item == target){
+					key = true;
+				}
+			});
+			if(key){
+				text.value = tmp.map(function(item){
+					if(item == target){
+						return '';
+					}
+					return item;
+				}).join(' ');
+			}
+			else if(target == 'Возможные теги');
+			else{
+				text.value += ' ' + target;
+			}
+		}
+
+		function createdAfterHandler(){
+			document.forms.search.createdBefore.setAttribute('min', this.value);
+		}
+
+		function createdBeforeHandler(){
+			document.forms.search.createdAfter.setAttribute('max', this.value);
+		}
+
+		function filter(event){
+			var form = document.forms.search;
+			var filterConfig = {};
+			var date1 = new Date(form.createdAfter.value);
+			if(date1 != 'Invalid Date'){
+				filterConfig.createdAfter = date1;
+			}
+
+			var date2 = new Date(form.createdBefore.value);
+			if(date2 != 'Invalid Date'){
+				filterConfig.createdBefore = date2;
+			}
+
+			var author = form.author.value;
+			if(author != 'Возможные авторы'){
+				filterConfig.author = author;
+			}
+
+			var tags = form.tags.value.split(' ');
+
+			for(var i = 0; i < tags.length; i++){
+				if(tags[i].length == 0){
+					tags.splice(i,1);
+					i--;
+				}
+			}
+
+			filterConfig.tags = tags;
+
+			mainPage.setFilter(filterConfig);
+
+			mainPage.loadMainPage();
+		}
+
+	}
+
+	function aSearchOpened(event){
+		this.removeEventListener('click', aSearchOpened);
+  		document.querySelector('.search').innerHTML = '';
+		this.addEventListener('click', aSearchClosed);
+	}
 }
 
 function inputSubmitHandler(){
@@ -528,17 +806,112 @@ function inputSubmitHandler(){
 		}
 		article.img = form.img.value;
 
-		article.tags = form.tags.value.split(' ');
+		var tags = form.tags.value.split(' ');
 
-		console.log(form.tags.value);
+		for(var i = 0; i < tags.length; i++){
+			if(tags[i].length == 0){
+				tags.splice(i,1);
+				i--;
+			}
+		}
+
+		article.tags = tags;
 
 		articleContent.addArticle(article);
-		renderArticles();
+
+		mainPage.loadMainPage();
 	}
 }
 
-function renderArticles() {
-    articleRenderer.removeArticlesFromDom();
-    var articles = articleContent.getArticles();
-    articleRenderer.insertArticlesInDOM(articles);
+var mainPage = (function(){
+
+	var filterConfig;
+
+	var articleCount = 5;
+
+	function renderArticles() {
+		articleRenderer.removeArticlesFromDom();
+		var articles = articleContent.getArticles(0, articleCount, filterConfig);
+		articleRenderer.insertArticlesInDOM(articles);
+	}
+
+	function loadMainPage(){
+		articleCount = 5;
+		document.querySelector('.main-title').firstElementChild.textContent = 'Новости';
+		popularTags.insertTagsInDOM();
+		renderArticles();
+		window.onscroll = scrollMainPage;
+	}
+
+	function setFilter(filter){
+		filterConfig = filter;
+	}
+
+	function moreNews(){
+		if(articleCount + 5 > articleContent.count){
+			articleCount = articleContent.count;
+		}
+		else{
+			articleCount += 5;
+		}
+	}
+
+	return{
+		moreNews: moreNews,
+		setFilter: setFilter,
+		renderArticles: renderArticles,
+		loadMainPage: loadMainPage
+	}
+
+}());
+
+function scrollMainPage(){
+	var bottom = document.querySelector('.footer-content').lastElementChild.getBoundingClientRect().top;
+	if(window.pageYOffset > bottom){
+		mainPage.moreNews();
+		mainPage.renderArticles();
+	}
 }
+
+function logInfoAddEvents(){
+	var logInfo = document.querySelector('.log-info');
+	logInfo.addEventListener('mouseover', mouseover);
+	logInfo.addEventListener('click', logout);
+
+	function mouseover(){
+		logInfo.removeEventListener('mouseover', mouseover);
+		logInfo.addEventListener('mouseout', mouseout);
+		document.querySelector('.log-info').innerHTML = 'Выйти<br/><div id="username">' + userLog.username() + '</div>';
+	}
+
+	function mouseout(){
+		logInfo.removeEventListener('mouseout', mouseout);
+		logInfo.addEventListener('mouseover', mouseover);
+		document.querySelector('.log-info').innerHTML = 'Профиль<br/><div id="username">' + userLog.username() + '</div>';
+	}
+
+	function logout(){
+		logInfo.removeEventListener('mouseout', mouseout);
+		userLog.init();
+		logInfo.removeEventListener('click', logout);
+		logInfo.addEventListener('click', login);
+	}
+
+	function login(){
+		window.onscroll = 0;
+		document.querySelector('.main-title').firstElementChild.textContent = 'ВХОД';
+		popularTags.removeTagsFromDOM();
+		articleRenderer.removeArticlesFromDom();
+
+		var template = document.querySelector('#template-login');
+		document.querySelector('.article-list').appendChild(template.content.querySelector('.login-background').cloneNode(true));
+	}
+
+	function loginSubmitHandler(){
+		userLog.init(document.forms.login.login, document.forms.login.password);
+		mainPage.loadMainPage();
+	}
+}
+
+
+

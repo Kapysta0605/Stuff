@@ -108,7 +108,7 @@ body{
     margin-left: 10px;
     display: inline-block;
     color:aliceblue;
-    max-width: 12%;
+    max-width: 16%;
     margin: auto;
 }
 .log-info:hover{
@@ -292,13 +292,15 @@ body{
 }
 #aAdd:hover{
     color: #FFFF00;
+    text-shadow: 0 0 10px #FFF68F; 
 }
 #aSearch{
     cursor: pointer;
-    color:#CD00CD;    
+    color: #7D26CD;    
 }
 #aSearch:hover{
-    color:  #FF34B3;    
+    color:  #9B30FF;
+    text-shadow: 0 0 10px #FFBBFF; 
 }
 #headSide{
 	position: absolute;
@@ -317,6 +319,7 @@ body{
     display: block;
 }
 #username{
+    cursor: pointer;
     margin: 0px;
     max-height: 20%;
     display: inline-block;
@@ -343,6 +346,23 @@ body{
 #article-img{
     cursor: pointer;
 }
+#article-change{
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.7); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    color:black;
+    float: right;
+}
+#article-delete{
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.7); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    color:black;
+    float: right;
+}
+
 
 .input{
     cursor: text;
@@ -351,7 +371,7 @@ body{
     border-color: rgba(0, 0, 0, 0.1); 
 }
 .input-tags{
-    cursor: text;
+    cursor: pointer;
     background-color: rgba(0, 0, 0, 0.5); 
     border-radius: 10px;
     border-color: rgba(0, 0, 0, 0.1); 
@@ -365,3 +385,100 @@ body{
     float: right;
 }
 
+.search{
+    background-color: rgba(80, 0, 120, 0.3);
+    box-shadow: 0px 2px 40px rgba(0, 0, 0, 0.7);
+    margin: 0 5px; 
+    margin-top: -8vh; 
+    margin-bottom: 6vh;
+}
+.search-form{
+    cursor: text;
+}
+.search-form a{
+    display: inline;
+    cursor: default;
+    font-size: 70%;
+}
+.search-form a p{
+    cursor: default;
+    font-size: 30%;
+}
+.date-input{
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+}
+.search-input{
+    cursor: default;
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+}
+.search-tags{
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+}
+.search-author{
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+}
+.search-button{
+    margin-top: 2vh; 
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.7); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    color:black;
+    float: right;
+}
+.search-button-accept{
+    margin-top: 2vh; 
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.7); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    color:black;
+    float: right;
+}
+
+.login-background{
+    background-color: rgba(80, 0, 120, 0.5);
+    box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.7);
+    margin: 0 100px;
+    margin-top: 20px;
+}
+.login-input{
+    cursor: text;
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    margin-left: 30%;
+}
+.login-h2{
+    padding-bottom: 0;
+}
+
+.login-button{
+    margin-top: 2vh; 
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.7); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    color:black;
+    float: center;
+}
+.reset-button{
+    margin-top: 2vh; 
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.7); 
+    border-radius: 10px;
+    border-color: rgba(0, 0, 0, 0.1); 
+    color:black;
+    float: center;
+}
