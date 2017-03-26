@@ -1,5 +1,5 @@
 var articleContent = (function(){
-	var articles = [
+	var articlesTMP = [
 	{
 		id: '1',
 		title: 'Есть кто живой?',
@@ -109,6 +109,7 @@ var articleContent = (function(){
 	function getArticles(skip, top, filterConfig){
 		if(skip < 0 || top < 0) return undefined;
 
+		var articles = takeArticles();
 		skip = skip || 0;
 		top = top || 10;
 
@@ -177,6 +178,7 @@ var articleContent = (function(){
 	}
 
 	function getArticle(id){
+		var articles = takeArticles();
 		for(var i = 0; i < articles.length; i++){
 			if(articles[i].id == id)
 				return articles[i];
@@ -204,9 +206,11 @@ var articleContent = (function(){
 			return false;
 		}
 		if(validateArticle(article)){
+			var articles = takeArticles();
 			article.id = id;
 			id++;
 			articles.unshift(article);
+			storeArticles(articles);
 
 			var author = article.author;
 			var key = true;
@@ -229,7 +233,12 @@ var articleContent = (function(){
 	}
 
 	function editArticle(id, article){
-		var tmp = getArticle(id);
+		var articles = takeArticles();
+		var tmp;
+		for(var i = 0; i < articles.length; i++){
+			if(articles[i].id == id)
+				tmp = articles[i];
+		}
 		if(tmp){
 			for(var val in article){
 				if( val == "title"){
@@ -263,23 +272,27 @@ var articleContent = (function(){
 				else if (val == "img")
 					tmp.img == article[val];
 			}
+			storeArticles(articles);
 			return true;
 		}
 		return false;
 	}
 
 	function removeArticle(id){
+		var articles = takeArticles();
 		for (var i = 0; i < articles.length; i++) {
 			if(articles[i].id == id){
 				articles.splice(i,1);
+				storeArticles(articles);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	function authorsInit(){
-		articles.forEach(function(item){
+		function authorsInit(){
+			var articles = takeArticles();
+			articles.forEach(function(item){
 			var author = item.author;
 			var key = true;
 			for(var i = 0; i < authors.length; i++){
@@ -293,9 +306,29 @@ var articleContent = (function(){
 		});
 		authors.sort();
 	}
+	
+	function storeArticles(item){
+		if(Boolean(item)){
+			localStorage.setItem('articles', JSON.stringify(item));
+		}
+		else{
+			if(!localStorage.getItem('articles')){
+				localStorage.setItem('articles', JSON.stringify(articlesTMP));
+			}
+		}
+	}
+
+	function takeArticles(){
+		var articles = JSON.parse(localStorage.getItem('articles'));
+		articles.forEach(function(item){
+			item.createdAt = new Date(item.createdAt);
+		});
+		return articles;
+	}
 
 	return {
-		count: articles.length,
+		storeArticles: storeArticles,
+		count: takeArticles.length,
 		authors: authors,
 		authorsInit: authorsInit,
 		getArticle: getArticle,
@@ -636,7 +669,8 @@ function changeSubmitHandler(){
 
 
 document.addEventListener('DOMContentLoaded', startApp);
-function startApp(){   
+function startApp(){
+	articleContent.storeArticles();
 	articleRenderer.init();
 	popularTags.init(2);
 	userLog.init('Nova','kappa123');
