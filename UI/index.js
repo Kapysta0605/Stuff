@@ -115,23 +115,47 @@ var articleContent = (function(){
 		var articlesNew =  articles.filter(function(elem){
 			key = true;
 			if(Boolean(filterConfig)){
+				var date = elem.createdAt;
 
 				if(Boolean(filterConfig.author) && filterConfig.author != elem.author){
 					key = false;
 				}
 
-				if(Boolean(filterConfig.createdAfter) && filterConfig.createdAfter >= elem.createdAt || 
-				   Boolean(filterConfig.createdBefore) && filterConfig.createdBefore <= elem.createdAt){ 
-				   	alert(2);
-					key = false;
+				if(Boolean(filterConfig.createdAfter)){
+					if(filterConfig.createdAfter.getFullYear() > date.getFullYear()){
+						key = false;
+					}
+					else if(filterConfig.createdAfter.getFullYear() == date.getFullYear()){
+						if(filterConfig.createdAfter.getMonth() > date.getMonth()){
+							key = false;
+						}
+						else if(filterConfig.createdAfter.getMonth() == date.getMonth()){
+							if(filterConfig.createdAfter.getDate() > date.getDate()){
+								key = false;
+							}
+						}
+					}
+				}
+				   	
+				if(Boolean(filterConfig.createdBefore)){
+					if(filterConfig.createdBefore.getFullYear() < date.getFullYear()){
+						key = false;
+					}
+					else if(filterConfig.createdBefore.getFullYear() == date.getFullYear()){
+						if(filterConfig.createdBefore.getMonth() < date.getMonth()){
+							key = false;
+						}
+						else if(filterConfig.createdBefore.getMonth() == date.getMonth()){
+							if(filterConfig.createdBefore.getDate() < date.getDate()){
+								key = false;
+							}
+						}
+					}
 				}
 
 				if(Boolean(filterConfig.tags)){
 					var tmp = elem.tags.slice().sort();
-					console.log(tmp);
-
 					var tags = filterConfig.tags.slice().sort();
-					console.log(tags);
 					for(var i = 0; i < tags.length; i++){
 						var key1 = false;
 						for(var j = 0; j < tmp.length; j++){
@@ -608,6 +632,9 @@ function changeSubmitHandler(){
 	}
 }
 
+
+
+
 document.addEventListener('DOMContentLoaded', startApp);
 function startApp(){   
 	articleRenderer.init();
@@ -619,10 +646,15 @@ function startApp(){
 	addEvents();
 }
 
+
+
+
+
 function addEvents(){
 	document.querySelector('#aMain').addEventListener('click', aMain);
 	document.querySelector('#aAdd').addEventListener('click', aAdd);
 	document.querySelector('#aSearch').addEventListener('click', aSearchClosed);
+	document.querySelector('.logoBox').addEventListener('mouseover', showMemes);	
 	logInfoAddEvents();
 
 	function aMain(event){
@@ -711,6 +743,7 @@ function addEvents(){
 
 		document.forms.search.createdAfter.addEventListener('change', createdAfterHandler);
 		document.forms.search.createdBefore.addEventListener('change', createdBeforeHandler);
+		document.forms.search.tags.value = '';
 
 		tags = document.querySelector('.search-tags').addEventListener('change', tagSelectorHandler);
 
@@ -768,6 +801,7 @@ function addEvents(){
 			}
 
 			var tags = form.tags.value.split(' ');
+			console.log(tags);
 
 			for(var i = 0; i < tags.length; i++){
 				if(tags[i].length == 0){
@@ -789,6 +823,23 @@ function addEvents(){
 		this.removeEventListener('click', aSearchOpened);
   		document.querySelector('.search').innerHTML = '';
 		this.addEventListener('click', aSearchClosed);
+	}
+
+	function showMemes(){
+		document.querySelector('.logoBox').removeEventListener('mouseover', showMemes);
+		var template = document.querySelector('#MEMES');
+		document.body.style.background = "url(\"content/PEPE.gif\")";
+		document.body.style.backgroundSize = "100%";
+		document.querySelector('.imagez').appendChild(template.content.querySelector('.MEMES').cloneNode(true));
+		document.querySelector('.logoBox').addEventListener('mouseout', hideMemes);
+	}
+
+	function hideMemes(){
+		document.querySelector('.logoBox').removeEventListener('mouseout', showMemes);
+		var template = document.querySelector('#MEMES');		
+		document.body.style.background = "url(\"content/Background1.png\")";
+		document.querySelector('.imagez').innerHTML = '';
+		document.querySelector('.logoBox').addEventListener('mouseover', showMemes);
 	}
 }
 
