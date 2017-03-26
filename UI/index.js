@@ -465,7 +465,6 @@ var articleRenderer = ( function(){
  }());
 
 var userLog = ( function(){
-	var user;
 	var userList = [
 	{
 		login: 'Nova',
@@ -485,7 +484,7 @@ var userLog = ( function(){
 		for(var i = 0; i < userList.length; i++){
 			if(userList[i].login == login){
 				if(userList[i].password == password){
-					user = login;
+					localStorage.setItem('user', JSON.stringify(login));
 					renderUser();
 					return true;
 				}
@@ -493,13 +492,14 @@ var userLog = ( function(){
 			}
 		}
 		if(!Boolean(login)){
-			user = undefined;
+			localStorage.removeItem('user');
 		}
 		renderUser();
 		return false;
 	}
 
 	function renderUser(){
+		var user = JSON.parse(localStorage.getItem('user'));
 		if(Boolean(user)){
 			document.querySelector('#aAdd').textContent = 'Добавить';
 			document.querySelector('.log-info').style.fontSize = '50%';
@@ -513,11 +513,12 @@ var userLog = ( function(){
 	}
 
 	function username(){
-		var item;
-		if(Boolean(user)){
-			item = user.substring(0);
+		if(localStorage.getItem('user')){
+			return JSON.parse(localStorage.getItem('user'));
 		}
-		return item;
+		else{
+			return undefined;
+		}
 	}
 
 	return{
@@ -559,11 +560,17 @@ function readMoreHandler(event){
 			tags.appendChild(tmp);
 		}
 		
+		if(!Boolean(userLog.username())){
+			template.content.querySelector('.article-footer').removeChild(template.content.querySelector('#article-delete'));
+			template.content.querySelector('.article-footer').removeChild(template.content.querySelector('#article-change'));
+		}
 
     	document.querySelector('.article-list').appendChild(template.content.querySelector('.article').cloneNode(true));
-
-    	document.querySelector('#article-delete').addEventListener('click', articleFullDeleteHandler);
-    	document.querySelector('#article-change').addEventListener('click', articleFullChangeHandler);
+		
+    	if(Boolean(userLog.username())){
+    		document.querySelector('#article-delete').addEventListener('click', articleFullDeleteHandler);
+    		document.querySelector('#article-change').addEventListener('click', articleFullChangeHandler);
+    	}
 
     	function articleFullDeleteHandler(){
     		articleContent.removeArticle(document.querySelector('.article').dataset.id);
@@ -992,6 +999,7 @@ function logInfoAddEvents(){
 		document.querySelector('.article-list').appendChild(template.content.querySelector('.login-background').cloneNode(true));
 	}
 }
+
 function loginSubmitHandler(){
 	userLog.init(document.forms.login.login.value, document.forms.login.password.value);
 	mainPage.loadMainPage();
