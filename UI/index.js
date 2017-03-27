@@ -328,7 +328,7 @@ var articleContent = (function(){
 
 	return {
 		storeArticles: storeArticles,
-		count: takeArticles.length,
+		count: takeArticles().length,
 		authors: authors,
 		authorsInit: authorsInit,
 		getArticle: getArticle,
@@ -909,7 +909,9 @@ function inputSubmitHandler(){
 		article.tags = tags;
 
 		articleContent.addArticle(article);
+		
 
+		popularTags.init(2);
 		mainPage.loadMainPage();
 	}
 }
