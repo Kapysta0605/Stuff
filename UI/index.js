@@ -842,7 +842,6 @@ function addEvents(){
 			}
 
 			var tags = form.tags.value.split(' ');
-			console.log(tags);
 
 			for(var i = 0; i < tags.length; i++){
 				if(tags[i].length == 0){
@@ -913,6 +912,10 @@ function inputSubmitHandler(){
 
 		mainPage.loadMainPage();
 	}
+}
+
+function searchReset(){
+  		document.querySelector('.search-input').innerHTML = '';
 }
 
 var mainPage = (function(){
