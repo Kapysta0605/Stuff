@@ -111,7 +111,7 @@ var articleContent = (function(){
 
 		var articles = takeArticles();
 		skip = skip || 0;
-		top = top || 10;
+		top = top || articles.length;
 
 		var articlesNew =  articles.filter(function(elem){
 			key = true;
@@ -242,31 +242,28 @@ var articleContent = (function(){
 		if(tmp){
 			for(var val in article){
 				if( val == "title"){
-					if(article[val].length != 0){
-						if(article[val].length > 99) return false;
+					if(article[val].length != 0 && article[val].length < 100){
 						tmp.title = article[val];
 					}
 					else return false;
 				}
 
 				else if( val == "summary"){
-					if(article[val].length != 0 && article[val].length > 199){
+					if(article[val].length != 0 && article[val].length < 200){
 						tmp.summary = article[val];
 					}
 					else return false;
 				}
 
 				else if( val == "content"){
-					if(article[val].length != 0)
+					if(article[val].length != 0){
 						tmp.content = article[val];
+					}
 					else return false;
 				}
 
 				else if( val == "tags"){
-					if(article[val].length != 0){
-						tmp.tags = article[val].slice();
-					}
-					else return false;
+					tmp.tags = article[val].slice();					
 				}
 
 				else if (val == "img")
@@ -345,8 +342,12 @@ var popularTags = (function(){
 
 	function init(num){
 		if(typeof num != "number") return false;
-		if(tags)
+		if(tags){
 			tags.length = 0;
+		}
+		if(allTags){
+			allTags.length = 0;
+		}
 		var tmp = [];
 		var articles = articleContent.getArticles();
 		for(var i = 0; i < articles.length; i++){
@@ -574,6 +575,7 @@ function readMoreHandler(event){
 
     	function articleFullDeleteHandler(){
     		articleContent.removeArticle(document.querySelector('.article').dataset.id);
+			popularTags.init(2);
     		mainPage.loadMainPage();
     	}
 
@@ -667,7 +669,8 @@ function changeSubmitHandler(){
 		article.id = document.querySelector('.article').dataset.id;
 
 		articleContent.editArticle(article.id, article);
-
+		
+		popularTags.init(2);
 		mainPage.loadMainPage();
 	}
 }
