@@ -323,9 +323,13 @@ var articleContent = (function(){
 		return articles;
 	}
 
+	function count(){
+		return takeArticles.length;
+	}
+
 	return {
 		storeArticles: storeArticles,
-		count: takeArticles().length,
+		count: count,
 		authors: authors,
 		authorsInit: authorsInit,
 		getArticle: getArticle,
@@ -333,7 +337,7 @@ var articleContent = (function(){
 		removeArticle: removeArticle,
 		editArticle: editArticle,
 		addArticle: addArticle
-	};
+	}
 }());
 
 var popularTags = (function(){
@@ -523,6 +527,7 @@ var userLog = ( function(){
 	}
 
 	return{
+		renderUser: renderUser,
 		username: username,
 		init: init
 	};
@@ -682,8 +687,8 @@ document.addEventListener('DOMContentLoaded', startApp);
 function startApp(){
 	articleContent.storeArticles();
 	articleRenderer.init();
+	userLog.renderUser();
 	popularTags.init(2);
-	userLog.init('Nova','kappa123');
 	articleContent.authorsInit();
 	mainPage.loadMainPage();
 
@@ -948,8 +953,8 @@ var mainPage = (function(){
 	}
 
 	function moreNews(){
-		if(articleCount + 5 > articleContent.count){
-			articleCount = articleContent.count;
+		if(articleCount + 5 > articleContent.count()){
+			articleCount = articleContent.count();
 		}
 		else{
 			articleCount += 5;
@@ -975,8 +980,14 @@ function scrollMainPage(){
 
 function logInfoAddEvents(){
 	var logInfo = document.querySelector('.log-info');
-	logInfo.addEventListener('mouseover', mouseover);
-	logInfo.addEventListener('click', logout);
+
+	if(Boolean(userLog.username())){
+		logInfo.addEventListener('mouseover', mouseover);
+		logInfo.addEventListener('click', logout);
+	}
+	else{
+		logInfo.addEventListener('click', login);
+	}
 
 	function mouseover(){
 		logInfo.removeEventListener('mouseover', mouseover);
@@ -1010,7 +1021,44 @@ function logInfoAddEvents(){
 
 function loginSubmitHandler(){
 	userLog.init(document.forms.login.login.value, document.forms.login.password.value);
+
+
+	var logInfo = document.querySelector('.log-info');
+	if(Boolean(userLog.username())){
+		logInfo.removeEventListener('click', login);
+		logInfo.addEventListener('mouseover', mouseover);
+		logInfo.addEventListener('click', logout);
+	}
 	mainPage.loadMainPage();
+
+	function mouseover(){
+		logInfo.removeEventListener('mouseover', mouseover);
+		logInfo.addEventListener('mouseout', mouseout);
+		document.querySelector('.log-info').innerHTML = 'Выйти<br/><div id="username">' + userLog.username() + '</div>';
+	}
+
+	function mouseout(){
+		logInfo.removeEventListener('mouseout', mouseout);
+		logInfo.addEventListener('mouseover', mouseover);
+		document.querySelector('.log-info').innerHTML = 'Профиль<br/><div id="username">' + userLog.username() + '</div>';
+	}
+
+	function logout(){
+		logInfo.removeEventListener('mouseout', mouseout);
+		userLog.init();
+		logInfo.removeEventListener('click', logout);
+		logInfo.addEventListener('click', login);
+	}
+
+	function login(){
+		window.onscroll = 0;
+		document.querySelector('.main-title').firstElementChild.textContent = 'ВХОД';
+		popularTags.removeTagsFromDOM();
+		articleRenderer.removeArticlesFromDom();
+
+		var template = document.querySelector('#template-login');
+		document.querySelector('.article-list').appendChild(template.content.querySelector('.login-background').cloneNode(true));
+	}
 }
 
 
