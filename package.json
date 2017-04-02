@@ -1,0 +1,27 @@
+{
+  "name": "public",
+  "version": "1.0.0",
+  "description": "Nova NEUZ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kapysta0605/Stuff.git"
+  },
+  "keywords": [
+    "Nova",
+    "NEUZ",
+    "Stuff"
+  ],
+  "author": "Shavel Ilya",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kapysta0605/Stuff/issues"
+  },
+  "homepage": "https://github.com/Kapysta0605/Stuff#readme",
+  "dependencies": {
+    "express": "^4.15.2"
+  }
+}
