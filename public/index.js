@@ -48,12 +48,12 @@ const articleContent = (function() {
   function addArticle(article, callback) {
     const oReq = new XMLHttpRequest();
 
-    function handler () {
+    function handler() {
       callback();
       cleanUp();
     }
 
-    function cleanUp () {
+    function cleanUp() {
       oReq.removeEventListener('load', handler);
     }
 
@@ -81,12 +81,12 @@ const articleContent = (function() {
   function editArticle(article, callback) {
     const oReq = new XMLHttpRequest();
 
-    function handler () {
+    function handler() {
       callback();
       cleanUp();
     }
 
-    function cleanUp () {
+    function cleanUp() {
       oReq.removeEventListener('load', handler);
     }
 
@@ -119,14 +119,14 @@ const articleContent = (function() {
   function authorsInit() {
     getArticlesAmount((top) => {
       articleContent.getArticles(0, top, undefined, (articles) => {
-        articles.forEach(function(item) {
-          const author = item.author;
+        articles.forEach(function(article) {
+          const author = article.author;
           let key = true;
-          for (let i = 0; i < authors.length; i++) {
-            if (authors[i] === author) {
+          authors.forEach((item) => {
+            if(item === author){
               key = false;
             }
-          }
+          });
           if (key) {
             authors.push(author);
           }
@@ -139,12 +139,12 @@ const articleContent = (function() {
   function getArticlesAmount(callback) {
     const oReq = new XMLHttpRequest();
 
-    function handler () {
+    function handler() {
       callback(Number(oReq.responseText));
       cleanUp();
     }
 
-    function cleanUp () {
+    function cleanUp() {
       oReq.removeEventListener('load', handler);
     }
 
@@ -178,11 +178,7 @@ const popularTags = (function() {
       allTags.length = 0;
     }
     const tmp = [];
-    for (let i = 0; i < articles.length; i++) {
-      for (let j = 0; j < articles[i].tags.length; j++){
-        tmp.push(articles[i].tags[j]);
-      }
-    }
+    articles.forEach((article) => article.tags.forEach((tag) => tmp.push(tag)));
     tmp.sort();
     let a = 0;
     if (tmp.length > 1) {

@@ -92,9 +92,7 @@ function getAvailableId() {
   if (db.articles.count()) {
     return Number(db.articles.find().slice(0).sort((a, b) => b.id - a.id)[0].id) + 1;
   }
-  else {
-    return 1;
-  }
+  return 1;
 }
 
 function addArticle(article) {
@@ -156,7 +154,7 @@ function editArticle(article) {
       }
 
       else if (val === 'img')
-        tmp.img === article[val];
+        tmp.img = article[val];
     }
     db.articles.update({ id: article.id}, tmp);
     return true;
