@@ -12,7 +12,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 db.connect(`${__dirname}/private/`, ['articles', 'user', 'users']);
 
-
 function getArticles(skip, top, filter) {
   if (skip < 0 || top < 0) {
     return undefined;
@@ -21,8 +20,9 @@ function getArticles(skip, top, filter) {
     (key === 'createdAt') ? new Date(value) : value);
   let filterConfig;
   if (filter) {
-  filterConfig = JSON.parse(filter, (key, value) =>
-    (key == 'createdAfter' || key == 'createdBefore') ? new Date(value) : value);
+    filterConfig = JSON.parse(filter, (key, value) => {
+      (key === 'createdAfter' || key === 'createdBefore') ? new Date(value) : value
+    });
   }
   skip = skip || 0;
   top = top || articles.length;
@@ -30,18 +30,18 @@ function getArticles(skip, top, filter) {
     let key = true;
     if (filterConfig) {
       const date = elem.createdAt;
-      if (Boolean(filterConfig.author) && filterConfig.author != elem.author) {
+      if (Boolean(filterConfig.author) && filterConfig.author !== elem.author) {
         key = false;
       }
       if (filterConfig.createdAfter) {
         if (filterConfig.createdAfter.getFullYear() > date.getFullYear()) {
           key = false;
         }
-        else if (filterConfig.createdAfter.getFullYear() == date.getFullYear()) {
+        else if (filterConfig.createdAfter.getFullYear() === date.getFullYear()) {
           if (filterConfig.createdAfter.getMonth() > date.getMonth()) {
             key = false;
           }
-          else if (filterConfig.createdAfter.getMonth() == date.getMonth()) {
+          else if (filterConfig.createdAfter.getMonth() === date.getMonth()) {
             if (filterConfig.createdAfter.getDate() > date.getDate()) {
               key = false;
             }
@@ -52,11 +52,11 @@ function getArticles(skip, top, filter) {
         if (filterConfig.createdBefore.getFullYear() < date.getFullYear()) {
           key = false;
         }
-        else if (filterConfig.createdBefore.getFullYear() == date.getFullYear()) {
+        else if (filterConfig.createdBefore.getFullYear() === date.getFullYear()) {
           if (filterConfig.createdBefore.getMonth() < date.getMonth()) {
             key = false;
           }
-          else if (filterConfig.createdBefore.getMonth() == date.getMonth()) {
+          else if (filterConfig.createdBefore.getMonth() === date.getMonth()) {
             if (filterConfig.createdBefore.getDate() < date.getDate()) {
               key = false;
             }
@@ -79,7 +79,6 @@ function getArticles(skip, top, filter) {
           }
         }
       }
-
     }
     return key;
   });
@@ -97,7 +96,7 @@ function getAvailableId() {
 
 function addArticle(article) {
   if (validateArticle(article)) {
-    article.id = getAvailableId() + '';
+    article.id = `${getAvailableId()}`;
     db.articles.save(article);
   }
 }
@@ -134,29 +133,26 @@ function editArticle(article) {
         }
         else return false;
       }
-
       else if (val === 'summary') {
         if (article[val].length !== 0 && article[val].length < 200) {
           tmp.summary = article[val];
         }
         else return false;
       }
-
       else if (val === 'content') {
         if (article[val].length !== 0) {
           tmp.content = article[val];
         }
         else return false;
       }
-
       else if (val === 'tags') {
         tmp.tags = article[val].slice();
       }
-
-      else if (val === 'img')
+      else if (val === 'img'){
         tmp.img = article[val];
+      }
     }
-    db.articles.update({ id: article.id}, tmp);
+    db.articles.update({ id: article.id }, tmp);
     return true;
   }
   return false;
@@ -175,7 +171,7 @@ app.get('/articles', (req, res) => {
   res.json(getArticles(req.query.skip, req.query.top, req.query.filter))
 });
 
-app.get('/article/:id', (req, res) => res.send(db.articles.findOne({id: req.params.id})));
+app.get('/article/:id', (req, res) => res.send(db.articles.findOne({ id: req.params.id })));
 
 app.get('/articles/amount', (req, res) => res.send(getArticlesAmount(req.query.filter).toString()));
 
@@ -208,11 +204,9 @@ app.patch('/article', (req, res) => {
 });
 
 app.delete('/article/:id', (req, res) => {
-  db.articles.remove({id: req.params.id});
+  db.articles.remove({ id: req.params.id });
   res.end();
 });
-
-
 
 app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
