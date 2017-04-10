@@ -163,7 +163,7 @@ function editArticle(article) {
 }
 
 function validateUser(user) {
-  let userDb = db.users.findOne({ login: user.login, password: user.password });
+  const userDb = db.users.findOne({ login: user.login, password: user.password });
   if (userDb) {
     db.user.save(userDb);
     return true;

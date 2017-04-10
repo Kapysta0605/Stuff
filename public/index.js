@@ -94,7 +94,6 @@ const articleContent = (function() {
     oReq.open('PATCH', '/article');
     oReq.setRequestHeader('content-type', 'application/json');
     const body = JSON.stringify(article);
-    console.log(article);
     oReq.send(body);
   }
 
@@ -123,7 +122,7 @@ const articleContent = (function() {
           const author = article.author;
           let key = true;
           authors.forEach((item) => {
-            if(item === author){
+            if (item === author) {
               key = false;
             }
           });
@@ -154,7 +153,7 @@ const articleContent = (function() {
   }
 
   return {
-    getArticlesAmount:  getArticlesAmount,
+    getArticlesAmount: getArticlesAmount,
     authors: authors,
     authorsInit: authorsInit,
     getArticle: getArticle,
@@ -178,13 +177,15 @@ const popularTags = (function() {
       allTags.length = 0;
     }
     const tmp = [];
-    articles.forEach((article) => article.tags.forEach((tag) => tmp.push(tag)));
+    articles.forEach((article) => {
+      article.tags.forEach((tag) => tmp.push(tag));
+    });
     tmp.sort();
     let a = 0;
     if (tmp.length > 1) {
       allTags.push(tmp[a]);
       for (let i = 1; i < tmp.length; i++) {
-        if (tmp[i] != tmp[i - 1] || i === (tmp.length - 1)) {
+        if (tmp[i] !== tmp[i - 1] || i === (tmp.length - 1)) {
           if ((i - a) >= num) {
             tags.push(tmp[a]);
             a = i;
@@ -215,7 +216,7 @@ const popularTags = (function() {
     return true;
   }
 
-  return{
+  return {
     allTags: allTags,
     init: init,
     removeTagsFromDOM: removeTagsFromDOM,
@@ -257,8 +258,8 @@ const articleRenderer = (function() {
     const tags = template.content.querySelector('.article-tags');
     tags.innerHTML = 'ТЭГИ: ';
 
-    if (Boolean(article.tags)) {
-      for (i = 0; i < article.tags.length; i++) {
+    if (article.tags) {
+      for (let i = 0; i < article.tags.length; i++) {
         const li = document.createElement('li');
         li.innerHTML = `<li>${article.tags[i]}</li>`;
         tags.appendChild(li);
@@ -284,7 +285,6 @@ const articleRenderer = (function() {
 }());
 
 const userLog = ( function() {
-
   function init(login, password, callback) {
     const oReq = new XMLHttpRequest();
 
@@ -354,7 +354,7 @@ const userLog = ( function() {
     oReq.send();
   }
 
-  return{
+  return {
     renderUser: renderUser,
     username: username,
     init: init
@@ -367,117 +367,115 @@ function readMoreHandler(event) {
   if (target === this.querySelector('#readMore') ||
     target === this.querySelector('#article-img') ||
     target === this.querySelector('#article-title')) {
-
     const id = this.dataset.id;
-  articleContent.getArticle(id, (article) =>{
+    articleContent.getArticle(id, (article) => {
+      articleRenderer.removeArticlesFromDom();
+      popularTags.removeTagsFromDOM();
+      document.querySelector('.main-title').firstElementChild.textContent = '';
+      const template = document.querySelector('#template-article-full');
+      template.content.querySelector('.article').dataset.id = article.id;
+      template.content.querySelector('#article-title').textContent = article.title;
+      template.content.querySelector('#article-full-img').src = article.img;
+      template.content.querySelector('.article-content').textContent = article.content;
+      template.content.querySelector('#article-publname').textContent = article.author;
+      template.content.querySelector('#article-date').textContent = formatDate(article.createdAt);
+      const tags = template.content.querySelector('.article-tags');
 
-    articleRenderer.removeArticlesFromDom();
-    popularTags.removeTagsFromDOM();
-    document.querySelector('.main-title').firstElementChild.textContent = '';
-    const template = document.querySelector('#template-article-full');
-    template.content.querySelector('.article').dataset.id = article.id;
-    template.content.querySelector('#article-title').textContent = article.title;
-    template.content.querySelector('#article-full-img').src = article.img;
-    template.content.querySelector('.article-content').textContent = article.content;
-    template.content.querySelector('#article-publname').textContent = article.author;
-    template.content.querySelector('#article-date').textContent = formatDate(article.createdAt);
-    const tags = template.content.querySelector('.article-tags');
-
-    function formatDate(d) {
-      return `${d.getDate()}.${(d.getMonth() + 1)}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
-    }
-
-    tags.innerHTML = 'ТЭГИ: ';
-    for (let i = 0; i < article.tags.length; i++) {
-      const tmp = document.createElement('li');
-      tmp.innerHTML = `<li>${article.tags[i]}</li>`;
-      tags.appendChild(tmp);
-    }
-    userLog.username((user) => {
-      if (!user) {
-        const footer = template.content.querySelector('.article-footer');
-        footer.removeChild(template.content.querySelector('#article-delete'));
-        footer.removeChild(template.content.querySelector('#article-change'));
+      function formatDate(d) {
+        return `${d.getDate()}.${(d.getMonth() + 1)}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
       }
-      const content = template.content.querySelector('.article').cloneNode(true);
-      document.querySelector('.article-list').appendChild(content);
-      if (user) {
-        const deleteButton = document.querySelector('#article-delete');
-        const changeButton =	document.querySelector('#article-change');
-        deleteButton.addEventListener('click', articleFullDeleteHandler);
-        changeButton.addEventListener('click', articleFullChangeHandler);
+
+      tags.innerHTML = 'ТЭГИ: ';
+      for (let i = 0; i < article.tags.length; i++) {
+        const tmp = document.createElement('li');
+        tmp.innerHTML = `<li>${article.tags[i]}</li>`;
+        tags.appendChild(tmp);
       }
-    });
-
-    function articleFullDeleteHandler() {
-      articleContent.removeArticle(document.querySelector('.article').dataset.id, () => {
-        mainPage.loadMainPage();
-      });
-    }
-
-    function articleFullChangeHandler() {
-      const id = document.querySelector('.article').dataset.id;
-      const article = articleContent.getArticle(id, (article) =>{
-        window.onscroll = 0;
-        document.querySelector('.main-title').firstElementChild.textContent = 'Изменить новость';
-        popularTags.removeTagsFromDOM();
-        articleRenderer.removeArticlesFromDom();
-        const template = document.querySelector('#template-add-article');
-        template.content.querySelector('.article').dataset.id = article.id;
-        const tags = popularTags.allTags;
-        const tagSelector = template.content.querySelector('.input-tags');
-        tagSelector.innerHTML = '';
-        const tmp1 = document.createElement('option');
-        tmp1.innerHTML = '<option disabled>Возможные теги</option>';
-        tagSelector.appendChild(tmp1);
-        tags.forEach(function(item) {
-          const tmp = document.createElement('option');
-          tmp.innerHTML = `<option value='${item}'>${item}</option>`;
-          tagSelector.appendChild(tmp);
-        });
-        const inputButton = template.content.querySelector('.input-button');
-        inputButton.setAttribute('onclick', 'changeSubmitHandler()');
+      userLog.username((user) => {
+        if (!user) {
+          const footer = template.content.querySelector('.article-footer');
+          footer.removeChild(template.content.querySelector('#article-delete'));
+          footer.removeChild(template.content.querySelector('#article-change'));
+        }
         const content = template.content.querySelector('.article').cloneNode(true);
         document.querySelector('.article-list').appendChild(content);
-        document.forms.add.title.value = article.title;
-        document.forms.add.summary.value = article.summary;
-        document.forms.add.content.value = article.content;
-        document.forms.add.img.value = article.img;
-        document.forms.add.tags.value = article.tags.join(' ');
-        document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
-
-        function tagSelectorHandler(event) {
-          const target = event.currentTarget.value;
-          const text = document.forms.add.tags;
-          const tmp = text.value.split(' ');
-          let key = false;
-          tmp.forEach(function(item) {
-            if (item === target) {
-              key = true;
-            }
-          });
-          if (key) {
-            text.value = tmp.map(function(item) {
-              if (item === target) {
-                return '';
-              }
-              return item;
-            }).join(' ');
-          }
-          else if (target === 'Возможные теги');
-          else {
-            text.value += ` ${target}`;
-          }
+        if (user) {
+          const deleteButton = document.querySelector('#article-delete');
+          const changeButton = document.querySelector('#article-change');
+          deleteButton.addEventListener('click', articleFullDeleteHandler);
+          changeButton.addEventListener('click', articleFullChangeHandler);
         }
       });
-    }
-  });
-}
+
+      function articleFullDeleteHandler() {
+        articleContent.removeArticle(document.querySelector('.article').dataset.id, () => {
+          mainPage.loadMainPage();
+        });
+      }
+
+      function articleFullChangeHandler() {
+        const id = document.querySelector('.article').dataset.id;
+        const article = articleContent.getArticle(id, (article) => {
+          window.onscroll = 0;
+          document.querySelector('.main-title').firstElementChild.textContent = 'Изменить новость';
+          popularTags.removeTagsFromDOM();
+          articleRenderer.removeArticlesFromDom();
+          const template = document.querySelector('#template-add-article');
+          template.content.querySelector('.article').dataset.id = article.id;
+          const tags = popularTags.allTags;
+          const tagSelector = template.content.querySelector('.input-tags');
+          tagSelector.innerHTML = '';
+          const tmp1 = document.createElement('option');
+          tmp1.innerHTML = '<option disabled>Возможные теги</option>';
+          tagSelector.appendChild(tmp1);
+          tags.forEach(function(item) {
+            const tmp = document.createElement('option');
+            tmp.innerHTML = `<option value='${item}'>${item}</option>`;
+            tagSelector.appendChild(tmp);
+          });
+          const inputButton = template.content.querySelector('.input-button');
+          inputButton.setAttribute('onclick', 'changeSubmitHandler()');
+          const content = template.content.querySelector('.article').cloneNode(true);
+          document.querySelector('.article-list').appendChild(content);
+          document.forms.add.title.value = article.title;
+          document.forms.add.summary.value = article.summary;
+          document.forms.add.content.value = article.content;
+          document.forms.add.img.value = article.img;
+          document.forms.add.tags.value = article.tags.join(' ');
+          document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
+
+          function tagSelectorHandler(event) {
+            const target = event.currentTarget.value;
+            const text = document.forms.add.tags;
+            const tmp = text.value.split(' ');
+            let key = false;
+            tmp.forEach(function(item) {
+              if (item === target) {
+                key = true;
+              }
+            });
+            if (key) {
+              text.value = tmp.map(function(item) {
+                if (item === target) {
+                  return '';
+                }
+                return item;
+              }).join(' ');
+            }
+            else if (target === 'Возможные теги');
+            else {
+              text.value += ` ${target}`;
+            }
+          }
+        });
+      }
+    });
+  }
 }
 
 function changeSubmitHandler() {
   const form = document.forms.add;
-  if (form.title.value !== '' && form.summary.value !== '' && form.content.value != '') {
+  if (form.title.value !== '' && form.summary.value !== '' && form.content.value !== '') {
     userLog.username((user) => {
       const article = {
         id: '0',
@@ -509,9 +507,6 @@ function changeSubmitHandler() {
   }
 }
 
-
-
-
 document.addEventListener('DOMContentLoaded', startApp);
 function startApp() {
   articleRenderer.init();
@@ -521,10 +516,6 @@ function startApp() {
 
   addEvents();
 }
-
-
-
-
 
 function addEvents() {
   document.querySelector('#aMain').addEventListener('click', aMain);
@@ -599,7 +590,7 @@ function addEvents() {
     tagSelector.appendChild(tagsOptionDefault);
     tags.forEach(function(tag) {
       const tmp = document.createElement('option');
-      tmp.innerHTML = `<option value=\'${tag}\'>${tag}</option>`;
+      tmp.innerHTML = `<option value='${tag}'>${tag}</option>`;
       tagSelector.appendChild(tmp);
     });
 
@@ -611,7 +602,7 @@ function addEvents() {
     authorSelector.appendChild(authorsOptionDefault);
     authors.forEach(function(author) {
       const tmp = document.createElement('option');
-      tmp.innerHTML = `<option value=\'${author}\'>${author}</option>`;
+      tmp.innerHTML = `<option value='${author}'>${author}</option>`;
       authorSelector.appendChild(tmp);
     });
 
@@ -664,17 +655,17 @@ function addEvents() {
       const form = document.forms.search;
       const filterConfig = {};
       const date1 = new Date(form.createdAfter.value);
-      if (date1 != 'Invalid Date') {
+      if (date1 !== 'Invalid Date') {
         filterConfig.createdAfter = date1;
       }
 
       const date2 = new Date(form.createdBefore.value);
-      if (date2 != 'Invalid Date') {
+      if (date2 !== 'Invalid Date') {
         filterConfig.createdBefore = date2;
       }
 
       const author = form.author.value;
-      if (author != 'Возможные авторы') {
+      if (author !== 'Возможные авторы') {
         filterConfig.author = author;
       }
 
@@ -723,7 +714,7 @@ function addEvents() {
 
 function inputSubmitHandler() {
   const form = document.forms.add;
-  if (form.title.value != '' && form.summary.value != '' && form.content.value != '') {
+  if (form.title.value !== '' && form.summary.value !== '' && form.content.value !== '') {
     userLog.username((user) => {
       const article = {
         id: '0',
@@ -732,7 +723,7 @@ function inputSubmitHandler() {
         summary: form.summary.value,
         content: form.content.value,
         createdAt: new Date(),
-        author:  user,
+        author: user,
       }
       article.img = form.img.value;
 
@@ -740,14 +731,14 @@ function inputSubmitHandler() {
 
       for (let i = 0; i < tags.length; i++) {
         if (tags[i].length === 0) {
-          tags.splice(i,1);
+          tags.splice(i, 1);
           i--;
         }
       }
 
       article.tags = tags;
 
-      articleContent.addArticle(article, () =>{
+      articleContent.addArticle(article, () => {
         mainPage.loadMainPage();
       });
     });
@@ -797,7 +788,7 @@ const mainPage = (function() {
     });
   }
 
-  return{
+  return {
     moreNews: moreNews,
     setFilter: setFilter,
     renderArticles: renderArticles,
@@ -910,5 +901,3 @@ function loginSubmitHandler() {
     }
   });
 }
-
-
