@@ -21,16 +21,18 @@ function getArticles(skip, top, filter) {
   let filterConfig;
   if (filter) {
     filterConfig = JSON.parse(filter, (key, value) => {
-      (key === 'createdAfter' || key === 'createdBefore') ? new Date(value) : value
+      return (key === 'createdAfter' || key === 'createdBefore') ? new Date(value) : value;
     });
+    console.log(filter);
   }
+
   skip = skip || 0;
   top = top || articles.length;
   const articlesNew = articles.filter(function(elem) {
     let key = true;
     if (filterConfig) {
       const date = elem.createdAt;
-      if (Boolean(filterConfig.author) && filterConfig.author !== elem.author) {
+      if (filterConfig.author && filterConfig.author !== elem.author) {
         key = false;
       }
       if (filterConfig.createdAfter) {

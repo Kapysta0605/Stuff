@@ -655,12 +655,12 @@ function addEvents() {
       const form = document.forms.search;
       const filterConfig = {};
       const date1 = new Date(form.createdAfter.value);
-      if (date1 !== 'Invalid Date') {
+      if (date1 != 'Invalid Date') {
         filterConfig.createdAfter = date1;
       }
 
       const date2 = new Date(form.createdBefore.value);
-      if (date2 !== 'Invalid Date') {
+      if (date2 != 'Invalid Date') {
         filterConfig.createdBefore = date2;
       }
 
