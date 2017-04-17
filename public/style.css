@@ -7,6 +7,9 @@
     text-decoration: none;
     cursor: default;
 }
+textarea{
+    resize:none;
+}
 a img{
     cursor: pointer;
 }
@@ -17,7 +20,7 @@ h1 {
     text-transform: uppercase;
     font-size: 150%;
     font-weight: 400;
-    color: #FFF;    
+    color: #FFF;
     text-align: center;
     padding: 2%;
     margin: 0;
@@ -58,7 +61,7 @@ body{
 .header{
     text-transform: uppercase;
     font-size: 1.9vmax;
-    font-weight: 300;   
+    font-weight: 300;
 }
 .headMid{
     position: relative;
@@ -147,7 +150,7 @@ body{
 .main{
     max-width: 800px;
     margin: 0 auto;
-    margin-top: 5vh; 
+    margin-top: 5vh;
     padding: 0px;
     font-family: Comfortaa, sans-serif;
     text-transform: uppercase;
@@ -157,14 +160,14 @@ body{
 .main-title{
     background-color: rgba(80, 0, 120, 0.5);
     box-shadow: 0px 2px 40px rgba(0, 0, 0, 0.7);
-    margin-top: -6vh; 
+    margin-top: -6vh;
 }
 .tag-list{
     background-color: rgba(80, 0, 120, 0.3);
     box-shadow: 0px 2px 40px rgba(0, 0, 0, 0.7);
     font-size: 30%;
-    margin: 0 5px;  
-    margin-bottom: -20px;   
+    margin: 0 5px;
+    margin-bottom: -20px;
     padding-bottom:10px;
     padding-top:5px;
     padding-left: 10px;
@@ -266,17 +269,17 @@ body{
 }
 .VK{
     max-height:20px;
-    max-width:20px;  
+    max-width:20px;
     display: inline-block;
 }
 .Inst{
     max-height:20px;
-    max-width:20px;  
+    max-width:20px;
     display: inline-block;
 }
 .Skype{
     max-height:20px;
-    max-width:20px;  
+    max-width:20px;
     display: inline-block;
 }
 #aMain{
@@ -292,15 +295,15 @@ body{
 }
 #aAdd:hover{
     color: #FFFF00;
-    text-shadow: 0 0 10px #FFF68F; 
+    text-shadow: 0 0 10px #FFF68F;
 }
 #aSearch{
     cursor: pointer;
-    color: #7D26CD;    
+    color: #7D26CD;
 }
 #aSearch:hover{
     color:  #9B30FF;
-    text-shadow: 0 0 10px #FFBBFF; 
+    text-shadow: 0 0 10px #FFBBFF;
 }
 #headSide{
 	position: absolute;
@@ -348,17 +351,17 @@ body{
 }
 #article-change{
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     color:black;
     float: right;
 }
 #article-delete{
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     color:black;
     float: right;
 }
@@ -366,21 +369,21 @@ body{
 
 .input{
     cursor: text;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
 }
 .input-tags{
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
 }
 .input-button{
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     color:black;
     float: right;
 }
@@ -388,8 +391,8 @@ body{
 .search{
     background-color: rgba(80, 0, 120, 0.3);
     box-shadow: 0px 2px 40px rgba(0, 0, 0, 0.7);
-    margin: 0 5px; 
-    margin-top: -8vh; 
+    margin: 0 5px;
+    margin-top: -8vh;
     margin-bottom: 6vh;
 }
 .search-form{
@@ -406,43 +409,43 @@ body{
 }
 .date-input{
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
 }
 .search-input{
     cursor: default;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
 }
 .search-tags{
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
 }
 .search-author{
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
 }
 .search-button{
-    margin-top: 2vh; 
+    margin-top: 2vh;
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     color:black;
     float: right;
 }
 .search-button-accept{
-    margin-top: 2vh; 
+    margin-top: 2vh;
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     color:black;
     float: right;
 }
@@ -455,9 +458,9 @@ body{
 }
 .login-input{
     cursor: text;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     margin-left: 30%;
 }
 .login-h2{
@@ -465,20 +468,20 @@ body{
 }
 
 .login-button{
-    margin-top: 2vh; 
+    margin-top: 2vh;
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     color:black;
     float: center;
 }
 .reset-button{
-    margin-top: 2vh; 
+    margin-top: 2vh;
     cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.7); 
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 10px;
-    border-color: rgba(0, 0, 0, 0.1); 
+    border-color: rgba(0, 0, 0, 0.1);
     color:black;
     float: center;
 }
