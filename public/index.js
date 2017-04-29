@@ -127,8 +127,7 @@ const articleContent = (function() {
 
   function authorsInit() {
     getArticlesAmount()
-      .then(top => {
-        articleContent.getArticles(0, top, undefined)
+      .then(top => articleContent.getArticles(0, top, undefined))
           .then(articles => {
             articles.forEach(function(article) {
               const author = article.author;
@@ -144,7 +143,6 @@ const articleContent = (function() {
             });
             authors.sort();
           });
-      });
   }
 
   function getArticlesAmount() {
@@ -180,16 +178,13 @@ const articleContent = (function() {
 
 const popularTags = (function() {
   const tags = [];
-  const allTags = [];
 
   function init(num, articles) {
     if (typeof num !== 'number') return false;
     if (tags) {
       tags.length = 0;
     }
-    if (allTags) {
-      allTags.length = 0;
-    }
+
     const tmp = [];
     articles.forEach((article) => {
       article.tags.forEach((tag) => tmp.push(tag));
@@ -197,14 +192,12 @@ const popularTags = (function() {
     tmp.sort();
     let a = 0;
     if (tmp.length > 1) {
-      allTags.push(tmp[a]);
       for (let i = 1; i < tmp.length; i++) {
         if (tmp[i] !== tmp[i - 1] || i === (tmp.length - 1)) {
           if ((i - a) >= num) {
             tags.push(tmp[a]);
             a = i;
           }
-          allTags.push(tmp[i]);
           a = i;
         }
       }
@@ -228,6 +221,25 @@ const popularTags = (function() {
       popular.appendChild(li);
     }
     return true;
+  }
+
+  function allTags(){
+     return new Promise(function(resolve, reject) {
+      const oReq = new XMLHttpRequest();
+      function handler() {
+        resolve(JSON.parse(oReq.responseText));
+        cleanUp();
+      }
+
+      function cleanUp() {
+        oReq.removeEventListener('load', handler);
+      }
+
+      oReq.addEventListener('load', handler);
+
+      oReq.open('GET', `/tags`);
+      oReq.send();
+    });
   }
 
   return {
@@ -397,7 +409,8 @@ function readMoreHandler(event) {
         const tags = template.content.querySelector('.article-tags');
 
         function formatDate(d) {
-          return `${d.getDate()}.${(d.getMonth() + 1)}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
+          return `${d.getDate()}.${(d.getMonth() + 1)}.
+            ${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
         }
 
         tags.innerHTML = 'ТЭГИ: ';
@@ -434,32 +447,36 @@ function readMoreHandler(event) {
           const article = articleContent.getArticle(id)
             .then(article => {
               window.onscroll = 0;
-              document.querySelector('.main-title').firstElementChild.textContent = 'Изменить новость';
+              const mainTitle = document.querySelector('.main-title');
+              mainTitle.firstElementChild.textContent = 'Изменить новость';
               popularTags.removeTagsFromDOM();
               articleRenderer.removeArticlesFromDom();
               const template = document.querySelector('#template-add-article');
               template.content.querySelector('.article').dataset.id = article.id;
-              const tags = popularTags.allTags;
               const tagSelector = template.content.querySelector('.input-tags');
               tagSelector.innerHTML = '';
               const tmp1 = document.createElement('option');
               tmp1.innerHTML = '<option disabled>Возможные теги</option>';
               tagSelector.appendChild(tmp1);
-              tags.forEach(function(item) {
-                const tmp = document.createElement('option');
-                tmp.innerHTML = `<option value='${item}'>${item}</option>`;
-                tagSelector.appendChild(tmp);
+              popularTags.allTags()
+                .then( tags => {
+                  tags.forEach(function(item) {
+                    const tmp = document.createElement('option');
+                    tmp.innerHTML = `<option value='${item}'>${item}</option>`;
+                    tagSelector.appendChild(tmp);
+                  });
+                  const inputButton = template.content.querySelector('.input-button');
+                  inputButton.setAttribute('onclick', 'changeSubmitHandler()');
+                  const content = template.content.querySelector('.article').cloneNode(true);
+                  document.querySelector('.article-list').appendChild(content);
+                  document.forms.add.title.value = article.title;
+                  document.forms.add.summary.value = article.summary;
+                  document.forms.add.content.value = article.content;
+                  document.forms.add.img.value = article.img;
+                  document.forms.add.tags.value = article.tags.join(' ');
+                  const inputTags = document.querySelector('.input-tags');
+                  inputTags.addEventListener('change', tagSelectorHandler);
               });
-              const inputButton = template.content.querySelector('.input-button');
-              inputButton.setAttribute('onclick', 'changeSubmitHandler()');
-              const content = template.content.querySelector('.article').cloneNode(true);
-              document.querySelector('.article-list').appendChild(content);
-              document.forms.add.title.value = article.title;
-              document.forms.add.summary.value = article.summary;
-              document.forms.add.content.value = article.content;
-              document.forms.add.img.value = article.img;
-              document.forms.add.tags.value = article.tags.join(' ');
-              document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
 
               function tagSelectorHandler(event) {
                 const target = event.currentTarget.value;
@@ -553,20 +570,23 @@ function addEvents() {
     articleRenderer.removeArticlesFromDom();
 
     const template = document.querySelector('#template-add-article');
-    const tags = popularTags.allTags;
     const tagSelector = template.content.querySelector('.input-tags');
     tagSelector.innerHTML = '';
     const tmp1 = document.createElement('option');
     tmp1.innerHTML = '<option disabled>Возможные теги</option>';
     tagSelector.appendChild(tmp1);
-    tags.forEach(function(item) {
-      const tmp = document.createElement('option');
-      tmp.innerHTML = `<option value='${item}'>${item}</option>`;
-      tagSelector.appendChild(tmp);
-    });
-    const content = template.content.querySelector('.article').cloneNode(true);
-    document.querySelector('.article-list').appendChild(content);
-    document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
+    popularTags.allTags()
+      .then(tags => {
+        tags.sort();
+        tags.forEach(function(item) {
+          const tmp = document.createElement('option');
+          tmp.innerHTML = `<option value='${item}'>${item}</option>`;
+          tagSelector.appendChild(tmp);
+        });
+        const content = template.content.querySelector('.article').cloneNode(true);
+        document.querySelector('.article-list').appendChild(content);
+        document.querySelector('.input-tags').addEventListener('change', tagSelectorHandler);
+      });
 
     function tagSelectorHandler(event) {
       const target = event.currentTarget.value;
@@ -600,41 +620,41 @@ function addEvents() {
 
     const template = document.querySelector('#template-search');
 
-    const tags = popularTags.allTags;
     const tagSelector = template.content.querySelector('.search-tags');
     tagSelector.innerHTML = '';
     const tagsOptionDefault = document.createElement('option');
     tagsOptionDefault.innerHTML = '<option disabled>Возможные теги</option>';
     tagSelector.appendChild(tagsOptionDefault);
-    tags.forEach(function(tag) {
-      const tmp = document.createElement('option');
-      tmp.innerHTML = `<option value='${tag}'>${tag}</option>`;
-      tagSelector.appendChild(tmp);
-    });
+    popularTags.allTags()
+      .then(tags => {
+        tags.sort();
+        tags.forEach(function(tag) {
+          const tmp = document.createElement('option');
+          tmp.innerHTML = `<option value='${tag}'>${tag}</option>`;
+          tagSelector.appendChild(tmp);
+        });
+        const authors = articleContent.authors;
+        const authorSelector = template.content.querySelector('.search-author');
+        authorSelector.innerHTML = '';
+        const authorsOptionDefault = document.createElement('option');
+        authorsOptionDefault.innerHTML = '<option disabled>Возможные авторы</option>';
+        authorSelector.appendChild(authorsOptionDefault);
+        authors.forEach(function(author) {
+          const tmp = document.createElement('option');
+          tmp.innerHTML = `<option value='${author}'>${author}</option>`;
+          authorSelector.appendChild(tmp);
+        });
 
-    const authors = articleContent.authors;
-    const authorSelector = template.content.querySelector('.search-author');
-    authorSelector.innerHTML = '';
-    const authorsOptionDefault = document.createElement('option');
-    authorsOptionDefault.innerHTML = '<option disabled>Возможные авторы</option>';
-    authorSelector.appendChild(authorsOptionDefault);
-    authors.forEach(function(author) {
-      const tmp = document.createElement('option');
-      tmp.innerHTML = `<option value='${author}'>${author}</option>`;
-      authorSelector.appendChild(tmp);
-    });
+        document.querySelector('.search').innerHTML = '';
+        const content = template.content.querySelector('.search-form').cloneNode(true);
+        document.querySelector('.search').appendChild(content);
 
-    document.querySelector('.search').innerHTML = '';
-    const content = template.content.querySelector('.search-form').cloneNode(true);
-    document.querySelector('.search').appendChild(content);
-
-    document.forms.search.createdAfter.addEventListener('change', createdAfterHandler);
-    document.forms.search.createdBefore.addEventListener('change', createdBeforeHandler);
-    document.forms.search.tags.value = '';
-
-    document.querySelector('.search-tags').addEventListener('change', tagSelectorHandler);
-
-    document.querySelector('.search-button-accept').addEventListener('click', filter);
+        document.forms.search.createdAfter.addEventListener('change', createdAfterHandler);
+        document.forms.search.createdBefore.addEventListener('change', createdBeforeHandler);
+        document.forms.search.tags.value = '';
+        document.querySelector('.search-tags').addEventListener('change', tagSelectorHandler);
+        document.querySelector('.search-button-accept').addEventListener('click', filter);
+      });
 
     function tagSelectorHandler(event) {
       const target = event.currentTarget.value;
