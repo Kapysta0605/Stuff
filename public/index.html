@@ -164,7 +164,7 @@
 
 	<template id="template-add-article">
 		<div class="article">
-			<form name="add" class="article-box">
+			<form name="add" class="article-box" OnSubmit=" return false">
 				<h4>Название</h4>
 				<input maxlength='99'
  type = "text" size = "70%" required class="input" name="title">
@@ -196,10 +196,10 @@
 	</template>
 
 	<template id="template-search">
-		<form class='search-form' name='search'>
+		<form class='search-form' name='search' OnSubmit=" return false">
 			<a>Выберите дату:
 
-				<input class='search-button' onclick="searchReset()"type="reset" value="Очистить">
+				<input class='search-button' onclick="searchReset()" type="reset" value="Очистить">
 				<input class='search-button-accept' type="button" value="Применить" >
 
 				<p> от <input class='date-input' type="date" name="createdAfter"> до <input class='date-input' type="date" name="createdBefore"></p>
@@ -225,7 +225,7 @@
 
 	<template id="template-login">
 	<div class="login-background">
-			<form class='login-form' name='login'>
+			<form class='login-form' name='login' OnSubmit=" return false">
 				<h2 class='login-h2'>Логин</h2>
 				<input type = "text" size = "30%" required class="login-input" name="login">
 

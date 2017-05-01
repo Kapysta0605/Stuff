@@ -1,4 +1,14 @@
-const articleContent = (function() {
+const utils = (() => {
+  function formatDate(d) {
+    return `${d.getDate()}.${(d.getMonth() + 1)}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
+  }
+
+  return{
+    formatDate
+  }
+})();
+
+const articleContent = (() => {
   const authors = [];
 
   function getArticles(skip, top, filterConfig) {
@@ -174,9 +184,9 @@ const articleContent = (function() {
     editArticle,
     addArticle
   }
-}());
+})();
 
-const popularTags = (function() {
+const popularTags = (() => {
   const tags = [];
 
   function init(num, articles) {
@@ -248,9 +258,9 @@ const popularTags = (function() {
     removeTagsFromDOM: removeTagsFromDOM,
     insertTagsInDOM: insertTagsInDOM
   }
-}());
+})();
 
-const articleRenderer = (function() {
+const articleRenderer = (() => {
   let ARTICLE_TEMPLATE;
   let ARTICLE_LIST;
 
@@ -280,7 +290,8 @@ const articleRenderer = (function() {
     template.content.querySelector('#article-img').src = article.img;
     template.content.querySelector('.article-summary').textContent = article.summary;
     template.content.querySelector('#article-publname').textContent = article.author;
-    template.content.querySelector('#article-date').textContent = formatDate(article.createdAt);
+    const createdAt = article.createdAt;
+    template.content.querySelector('#article-date').textContent = utils.formatDate(createdAt);
     const tags = template.content.querySelector('.article-tags');
     tags.innerHTML = 'ТЭГИ: ';
 
@@ -295,9 +306,7 @@ const articleRenderer = (function() {
     return template.content.querySelector('.article').cloneNode(true);
   }
 
-  function formatDate(d) {
-    return `${d.getDate()}.${(d.getMonth() + 1)}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
-  }
+
 
   function removeArticlesFromDom () {
     ARTICLE_LIST.innerHTML = '';
@@ -308,84 +317,101 @@ const articleRenderer = (function() {
     insertArticlesInDOM: insertArticlesInDOM,
     removeArticlesFromDom: removeArticlesFromDom
   };
-}());
+})();
 
-const userLog = ( function() {
-  function init(login, password, callback) {
-    const oReq = new XMLHttpRequest();
+const userLog = (() => {
+  function login(login, password) {
+    return new Promise((response) => {
+      const oReq = new XMLHttpRequest();
 
-    function handler () {
-      callback();
-      renderUser();
-      cleanUp();
-    }
-
-    function cleanUp () {
-      oReq.removeEventListener('load', handler);
-    }
-
-    oReq.addEventListener('load', handler);
-    oReq.open('POST', '/users/login');
-    oReq.setRequestHeader('content-type', 'application/json');
-    let user = {};
-    if (login) {
-      user.login = login;
-      user.password = password;
-    }
-    else {
-      user.login = ' ';
-      user.password = ' ';
-    }
-    const body = JSON.stringify(user);
-    oReq.send(body);
-  }
-
-  function renderUser() {
-    username((user) => {
-      const logInfo = document.querySelector('.log-info');
-      const aAdd = document.querySelector('#aAdd');
-      if (user) {
-        aAdd.textContent = 'Добавить';
-        logInfo.style.fontSize = '50%';
-        logInfo.innerHTML = `Профиль<br/><div id='username'>${user}</div>`;
+      function handler () {
+        response();
+        renderUser();
+        cleanUp();
       }
-      else {
-        aAdd.textContent = '';
-        logInfo.style.fontSize = '100%';
-        logInfo.innerHTML = 'Войти';
+
+      function cleanUp () {
+        oReq.removeEventListener('load', handler);
       }
+      const params = `username=${login}&password=${password}`;
+      oReq.addEventListener('load', handler);
+      oReq.open('POST', `/login?${params}`);
+      console.log(`/login?${params}`);
+      oReq.setRequestHeader('content-type', 'application/json');
+      oReq.send();
     });
   }
 
-  function username(callback) {
-    const oReq = new XMLHttpRequest();
+  function exit(){
+    return new Promise((resolve) => {
+      const oReq = new XMLHttpRequest();
 
-    function handler () {
-      if (oReq.responseText) {
-        callback(JSON.parse(oReq.responseText));
+      function handler () {
+        resolve();
+        renderUser();
+        cleanUp();
       }
-      else {
-        callback();
+
+      function cleanUp () {
+        oReq.removeEventListener('load', handler);
       }
-      cleanUp();
-    }
+      oReq.addEventListener('load', handler);
+      oReq.open('POST', `/exit`);
+      oReq.setRequestHeader('content-type', 'application/json');
+      oReq.send();
+    });
+  }
 
-    function cleanUp () {
-      oReq.removeEventListener('load', handler);
-    }
+  function renderUser() {
+    username()
+      .then((user) => {
+        const logInfo = document.querySelector('.log-info');
+        const aAdd = document.querySelector('#aAdd');
+        if (user) {
+          aAdd.textContent = 'Добавить';
+          logInfo.style.fontSize = '50%';
+          logInfo.innerHTML = `Профиль<br/><div id='username'>${user}</div>`;
+        }
+        else {
+          aAdd.textContent = '';
+          logInfo.style.fontSize = '100%';
+          logInfo.innerHTML = 'Войти';
+        }
+      });
+  }
 
-    oReq.addEventListener('load', handler);
-    oReq.open('GET', '/user');
-    oReq.setRequestHeader('content-type', 'application/json');
-    oReq.send();
+  function username() {
+    return new Promise((resolve) =>{
+      const oReq = new XMLHttpRequest();
+
+      function handler () {
+        if (oReq.responseText) {
+          resolve(oReq.responseText);
+        }
+        else {
+          resolve();
+        }
+        cleanUp();
+      }
+
+      function cleanUp () {
+        oReq.removeEventListener('load', handler);
+      }
+
+      oReq.addEventListener('load', handler);
+      oReq.open('GET', '/user');
+      oReq.setRequestHeader('content-type', 'application/json');
+      oReq.send();
+    });
   }
 
   return {
-    renderUser: renderUser,
-    username: username,
-    init: init
+    renderUser,
+    username,
+    login,
+    exit
   };
-}());
+})();
 
 function readMoreHandler(event) {
   window.onscroll = 0;
@@ -405,13 +431,9 @@ function readMoreHandler(event) {
         template.content.querySelector('#article-full-img').src = article.img;
         template.content.querySelector('.article-content').textContent = article.content;
         template.content.querySelector('#article-publname').textContent = article.author;
-        template.content.querySelector('#article-date').textContent = formatDate(article.createdAt);
+        const createdAt = article.createdAt;
+        template.content.querySelector('#article-date').textContent = utils.formatDate(createdAt);
         const tags = template.content.querySelector('.article-tags');
-
-        function formatDate(d) {
-          return `${d.getDate()}.${(d.getMonth() + 1)}.
-            ${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
-        }
 
         tags.innerHTML = 'ТЭГИ: ';
         for (let i = 0; i < article.tags.length; i++) {
@@ -419,7 +441,8 @@ function readMoreHandler(event) {
           tmp.innerHTML = `<li>${article.tags[i]}</li>`;
           tags.appendChild(tmp);
         }
-        userLog.username((user) => {
+        userLog.username()
+          .then((user) => {
           if (!user) {
             const footer = template.content.querySelector('.article-footer');
             footer.removeChild(template.content.querySelector('#article-delete'));
@@ -510,46 +533,37 @@ function readMoreHandler(event) {
 function changeSubmitHandler() {
   const form = document.forms.add;
   if (form.title.value !== '' && form.summary.value !== '' && form.content.value !== '') {
-    userLog.username((user) => {
-      const article = {
-        id: '0',
-        title: form.title.value,
-        img: '',
-        summary: form.summary.value,
-        content: form.content.value,
-        createdAt: new Date(),
-        author: user,
-      }
-      article.img = form.img.value;
-
-      const tags = form.tags.value.split(' ');
-
-      for (let i = 0; i < tags.length; i++) {
-        if (tags[i].length === 0) {
-          tags.splice(i, 1);
-          i--;
+    userLog.username()
+      .then((user) => {
+        const article = {
+          id: '0',
+          title: form.title.value,
+          img: '',
+          summary: form.summary.value,
+          content: form.content.value,
+          createdAt: new Date(),
+          author: user,
         }
-      }
+        article.img = form.img.value;
 
-      article.tags = tags;
-      article.id = document.querySelector('.article').dataset.id;
+        const tags = form.tags.value.split(' ');
 
-      articleContent.editArticle(article)
-        .then(() => {
-          mainPage.loadMainPage();
-        });
-    });
+        for (let i = 0; i < tags.length; i++) {
+          if (tags[i].length === 0) {
+            tags.splice(i, 1);
+            i--;
+          }
+        }
+
+        article.tags = tags;
+        article.id = document.querySelector('.article').dataset.id;
+
+        articleContent.editArticle(article)
+          .then(() => {
+            mainPage.loadMainPage();
+          });
+      });
   }
-}
-
-document.addEventListener('DOMContentLoaded', startApp);
-function startApp() {
-  articleRenderer.init();
-  userLog.renderUser();
-  articleContent.authorsInit();
-  mainPage.loadMainPage();
-
-  addEvents();
 }
 
 function addEvents() {
@@ -753,34 +767,35 @@ function addEvents() {
 function inputSubmitHandler() {
   const form = document.forms.add;
   if (form.title.value !== '' && form.summary.value !== '' && form.content.value !== '') {
-    userLog.username((user) => {
-      const article = {
-        id: '0',
-        title: form.title.value,
-        img: '',
-        summary: form.summary.value,
-        content: form.content.value,
-        createdAt: new Date(),
-        author: user,
-      }
-      article.img = form.img.value;
-
-      const tags = form.tags.value.split(' ');
-
-      for (let i = 0; i < tags.length; i++) {
-        if (tags[i].length === 0) {
-          tags.splice(i, 1);
-          i--;
+    userLog.username()
+      .then((user) => {
+        const article = {
+          id: '0',
+          title: form.title.value,
+          img: '',
+          summary: form.summary.value,
+          content: form.content.value,
+          createdAt: new Date(),
+          author: user,
         }
-      }
+        article.img = form.img.value;
 
-      article.tags = tags;
+        const tags = form.tags.value.split(' ');
 
-      articleContent.addArticle(article)
-        .then(() => {
-          mainPage.loadMainPage();
-        });
-    });
+        for (let i = 0; i < tags.length; i++) {
+          if (tags[i].length === 0) {
+            tags.splice(i, 1);
+            i--;
+          }
+        }
+
+        article.tags = tags;
+
+        articleContent.addArticle(article)
+          .then(() => {
+            mainPage.loadMainPage();
+          });
+      });
   }
 }
 
@@ -849,40 +864,36 @@ function scrollMainPage() {
   }
 }
 
-function logInfoAddEvents() {
-  const logInfo = document.querySelector('.log-info');
-  userLog.username((user) => {
-    if (user) {
-      logInfo.addEventListener('mouseover', mouseover);
-      logInfo.addEventListener('click', logout);
-    }
-    else {
-      logInfo.addEventListener('click', login);
-    }
-  });
-
+const loginEvents = (() => {
   function mouseover() {
-    userLog.username((user) => {
-      logInfo.removeEventListener('mouseover', mouseover);
-      logInfo.addEventListener('mouseout', mouseout);
-      logInfo.innerHTML = `Выйти<br/><div id='username'>${user}</div>`;
-    });
+    userLog.username()
+      .then((user) => {
+        const logInfo = document.querySelector('.log-info');
+        logInfo.removeEventListener('mouseover', mouseover);
+        logInfo.addEventListener('mouseout', mouseout);
+        logInfo.innerHTML = `Выйти<br/><div id='username'>${user}</div>`;
+      });
   }
 
   function mouseout() {
-    userLog.username((user) => {
-      logInfo.removeEventListener('mouseout', mouseout);
-      logInfo.addEventListener('mouseover', mouseover);
-      logInfo.innerHTML = `Профиль<br/><div id='username'>${user}</div>`;
-    });
+    userLog.username()
+      .then((user) => {
+        const logInfo = document.querySelector('.log-info');
+        logInfo.removeEventListener('mouseout', mouseout);
+        logInfo.addEventListener('mouseover', mouseover);
+        logInfo.innerHTML = `Профиль<br/><div id='username'>${user}</div>`;
+      });
   }
 
   function logout() {
+    const logInfo = document.querySelector('.log-info');
     logInfo.removeEventListener('mouseout', mouseout);
-    userLog.init(undefined, undefined, () => {
-      logInfo.removeEventListener('click', logout);
-      logInfo.addEventListener('click', login);
-    });
+    userLog.exit()
+      .then(() => {
+        logInfo.removeEventListener('click', logout);
+        logInfo.addEventListener('click', login);
+        mainPage.loadMainPage();
+      });
   }
 
   function login() {
@@ -894,53 +905,53 @@ function logInfoAddEvents() {
     const content = template.content.querySelector('.login-background').cloneNode(true);
     document.querySelector('.article-list').appendChild(content);
   }
+  return{
+    mouseout,
+    mouseover,
+    login,
+    logout
+  }
+})();
+
+function logInfoAddEvents() {
+  const logInfo = document.querySelector('.log-info');
+  userLog.username()
+    .then((user) => {
+      if (user) {
+        logInfo.addEventListener('mouseover', loginEvents.mouseover);
+        logInfo.addEventListener('click', loginEvents.logout);
+      }
+      else {
+        logInfo.addEventListener('click', loginEvents.login);
+      }
+    });
 }
 
 function loginSubmitHandler() {
-  userLog.init(document.forms.login.login.value, document.forms.login.password.value, () => {
-    const logInfo = document.querySelector('.log-info');
-    userLog.username((user) => {
-      if (user) {
-        logInfo.removeEventListener('click', login);
-        logInfo.addEventListener('mouseover', mouseover);
-        logInfo.addEventListener('click', logout);
-      }
+  const login = document.forms.login.login.value;
+  const password = document.forms.login.password.value;
+  userLog.login(login, password)
+    .then(() => {
+      const logInfo = document.querySelector('.log-info');
+      userLog.username()
+        .then((user) => {
+          if (user) {
+            logInfo.removeEventListener('click', loginEvents.login);
+            logInfo.addEventListener('mouseover', loginEvents.mouseover);
+            logInfo.addEventListener('click', loginEvents.logout);
+          }
+        });
+      mainPage.loadMainPage();
     });
-    mainPage.loadMainPage();
+  return false;
+}
 
-    function mouseover() {
-      userLog.username((user) => {
-        logInfo.removeEventListener('mouseover', mouseover);
-        logInfo.addEventListener('mouseout', mouseout);
-        logInfo.innerHTML = `Выйти<br/><div id='username'>${user}</div>`;
-      });
-    }
+document.addEventListener('DOMContentLoaded', startApp);
+function startApp() {
+  articleRenderer.init();
+  userLog.renderUser();
+  articleContent.authorsInit();
+  mainPage.loadMainPage();
 
-    function mouseout() {
-      userLog.username((user) => {
-        logInfo.removeEventListener('mouseout', mouseout);
-        logInfo.addEventListener('mouseover', mouseover);
-        logInfo.innerHTML = `Профиль<br/><div id='username'>${user}</div>`;
-      });
-    }
-
-    function logout() {
-      logInfo.removeEventListener('mouseout', mouseout);
-      userLog.init(undefined, undefined, () => {
-        logInfo.removeEventListener('click', logout);
-        logInfo.addEventListener('click', login);
-      });
-    }
-
-    function login() {
-      window.onscroll = 0;
-      document.querySelector('.main-title').firstElementChild.textContent = 'ВХОД';
-      popularTags.removeTagsFromDOM();
-      articleRenderer.removeArticlesFromDom();
-
-      const template = document.querySelector('#template-login');
-      const content = template.content.querySelector('.login-background').cloneNode(true);
-      document.querySelector('.article-list').appendChild(content);
-    }
-  });
+  addEvents();
 }

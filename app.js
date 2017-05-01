@@ -1,16 +1,58 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const db = require('diskdb');
+const session = require('express-session');
+const passport = require('passport')
+const LocalStrategy = require('passport-local').Strategy;
+const SessionStore = require('connect-diskdb')(session);
 
 const app = express();
-const bodyParser = require('body-parser');
-
-const db = require('diskdb');
 
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(`${__dirname}/public`));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-db.connect(`${__dirname}/private/`, ['articles', 'user', 'users', 'tags']);
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    const users = db.users;
+    const user = users.findOne({ login: username });
+    if (!user) {
+     return done(null, false, { message: 'Incorrect username.' });
+    }
+    if (user.password != password) {
+      return done(null, false, { message: 'Incorrect password.' });
+    }
+      return done(null, username);
+    }
+));
+
+passport.serializeUser((user, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+app.use(session({
+  secret: 'SourCat',
+  resave: false,
+  saveUninitialized: false,
+  rolling: true,
+  name: 'sid',
+  cookie: { maxAge: 86400000 },
+  store: new SessionStore({
+    path:'./dbstore',
+    name:'SIDs',
+  })
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+db.connect(`${__dirname}/private/`, ['articles', 'users', 'tags']);
+
+getArticles().forEach(item => addTags(item));
 
 function addTags(article){
   const tags = article.tags;
@@ -50,7 +92,8 @@ function removeTags(article){
     let index = item[tag].indexOf(article.id);
     item[tag].splice(index, 1);
     if (item[tag].length === 0) {
-      item[tag] = undefined;
+      db.tags.remove({_id: item._id});
+      return;
     }
     db.tags.update({_id: item._id}, item);
     return;
@@ -203,12 +246,11 @@ function editArticle(article) {
 }
 
 function validateUser(user) {
-  const userDb = db.users.findOne({ login: user.login, password: user.password });
+  const userDb = db.users.findOne({ login: user.username, password: user.password });
   if (userDb) {
     db.user.save(userDb);
     return true;
   }
-  db.user.remove();
 }
 
 app.get('/articles', (req, res) => {
@@ -224,21 +266,53 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/user', (req, res) => {
-  if (db.user && db.user.findOne()) {
-    res.json(db.user.findOne().login);
+  if (req.user) {
+    res.send(req.user);
   }
   else {
     res.end();
   }
 });
 
-app.get('/tags', (req, res) => res.json(db.tags.find().map(item => {
-  return (Object.keys(item)[0] === '_id') ? undefined : Object.keys(item)[0];
-})));
+app.get('/tags', (req, res) => {
+  res.json(db.tags.find().map(item => {
+    return (Object.keys(item)[0] === '_id') ? undefined : Object.keys(item)[0];
+  }));
+});
 
-app.post('/users/login', (req, res) => {
-  validateUser(req.body);
-  res.end();
+app.post('/login', (req, res) => {
+  passport.authenticate('local', (err, user) => {
+    if (err) {
+      res.send(err.message);
+      return;
+    }
+    if (!user) {
+      res.send('Ошибка авторизации');
+      return;
+    }
+
+    req.logIn(user, (error) => {
+      if (error) {
+        res.send(error.message);
+        return;
+      }
+
+      res.end();
+    });
+  })(req, res);
+});
+
+app.post('/exit', (req, res) => {
+  if (!req.user) {
+    res.status(401).end();
+    return;
+  }
+  req.session.destroy((err) => {
+    if (err) {
+      res.send(err.message);
+    }
+    res.end();
+  });
 });
 
 app.post('/article', (req, res) => {
