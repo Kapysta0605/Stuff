@@ -2,5 +2,6 @@
 *.iml
 .DS_Store/
 .idea/
+.mongoBase/
 out/
 node_modules/
