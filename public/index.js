@@ -9,7 +9,24 @@ const utils = (() => {
 })();
 
 const articleContent = (() => {
-  const authors = [];
+  function authors(){
+     return new Promise(function(resolve, reject) {
+      const oReq = new XMLHttpRequest();
+      function handler() {
+        resolve(JSON.parse(oReq.responseText));
+        cleanUp();
+      }
+
+      function cleanUp() {
+        oReq.removeEventListener('load', handler);
+      }
+
+      oReq.addEventListener('load', handler);
+
+      oReq.open('GET', `/users`);
+      oReq.send();
+    });
+  }
 
   function getArticles(skip, top, filterConfig) {
     return new Promise(function(resolve, reject) {
@@ -77,20 +94,6 @@ const articleContent = (() => {
       oReq.setRequestHeader('content-type', 'application/json');
       const body = JSON.stringify(article);
       oReq.send(body);
-
-      const author = article.author;
-      let key = true;
-      authors.forEach(function(item) {
-        if (item === author) {
-          key = false;
-        }
-      });
-
-      if (key) {
-        authors.push(author);
-      }
-
-      authors.sort();
     });
   }
 
@@ -135,26 +138,6 @@ const articleContent = (() => {
     });
   }
 
-  function authorsInit() {
-    getArticlesAmount()
-      .then(top => articleContent.getArticles(0, top, undefined))
-          .then(articles => {
-            articles.forEach(function(article) {
-              const author = article.author;
-              let key = true;
-              authors.forEach((item) => {
-                if (item === author) {
-                  key = false;
-                }
-              });
-              if (key) {
-                authors.push(author);
-              }
-            });
-            authors.sort();
-          });
-  }
-
   function getArticlesAmount() {
     return new Promise(function(resolve, reject) {
       const oReq = new XMLHttpRequest();
@@ -177,7 +160,6 @@ const articleContent = (() => {
   return {
     getArticlesAmount,
     authors,
-    authorsInit,
     getArticle,
     getArticles,
     removeArticle,
@@ -190,7 +172,7 @@ const popularTags = (() => {
   const tags = [];
 
   function init(num, articles) {
-    if (typeof num !== 'number') return false;
+    if (typeof num !== 'number' || articles !== []) return false;
     if (tags) {
       tags.length = 0;
     }
@@ -285,7 +267,7 @@ const articleRenderer = (() => {
 
   function renderArticle(article) {
     const template = ARTICLE_TEMPLATE;
-    template.content.querySelector('.article').dataset.id = article.id;
+    template.content.querySelector('.article').dataset.id = article._id;
     template.content.querySelector('#article-title').textContent = article.title;
     template.content.querySelector('#article-img').src = article.img;
     template.content.querySelector('.article-summary').textContent = article.summary;
@@ -336,7 +318,6 @@ const userLog = (() => {
       const params = `username=${login}&password=${password}`;
       oReq.addEventListener('load', handler);
       oReq.open('POST', `/login?${params}`);
-      console.log(`/login?${params}`);
       oReq.setRequestHeader('content-type', 'application/json');
       oReq.send();
     });
@@ -426,7 +407,7 @@ function readMoreHandler(event) {
         popularTags.removeTagsFromDOM();
         document.querySelector('.main-title').firstElementChild.textContent = '';
         const template = document.querySelector('#template-article-full');
-        template.content.querySelector('.article').dataset.id = article.id;
+        template.content.querySelector('.article').dataset.id = article._id;
         template.content.querySelector('#article-title').textContent = article.title;
         template.content.querySelector('#article-full-img').src = article.img;
         template.content.querySelector('.article-content').textContent = article.content;
@@ -475,7 +456,7 @@ function readMoreHandler(event) {
               popularTags.removeTagsFromDOM();
               articleRenderer.removeArticlesFromDom();
               const template = document.querySelector('#template-add-article');
-              template.content.querySelector('.article').dataset.id = article.id;
+              template.content.querySelector('.article').dataset.id = article._id;
               const tagSelector = template.content.querySelector('.input-tags');
               tagSelector.innerHTML = '';
               const tmp1 = document.createElement('option');
@@ -536,15 +517,13 @@ function changeSubmitHandler() {
     userLog.username()
       .then((user) => {
         const article = {
-          id: '0',
           title: form.title.value,
-          img: '',
+          img: form.img.value,
           summary: form.summary.value,
           content: form.content.value,
           createdAt: new Date(),
           author: user,
         }
-        article.img = form.img.value;
 
         const tags = form.tags.value.split(' ');
 
@@ -556,7 +535,7 @@ function changeSubmitHandler() {
         }
 
         article.tags = tags;
-        article.id = document.querySelector('.article').dataset.id;
+        article._id = document.querySelector('.article').dataset.id;
 
         articleContent.editArticle(article)
           .then(() => {
@@ -647,28 +626,29 @@ function addEvents() {
           tmp.innerHTML = `<option value='${tag}'>${tag}</option>`;
           tagSelector.appendChild(tmp);
         });
-        const authors = articleContent.authors;
-        const authorSelector = template.content.querySelector('.search-author');
-        authorSelector.innerHTML = '';
-        const authorsOptionDefault = document.createElement('option');
-        authorsOptionDefault.innerHTML = '<option disabled>Возможные авторы</option>';
-        authorSelector.appendChild(authorsOptionDefault);
-        authors.forEach(function(author) {
-          const tmp = document.createElement('option');
-          tmp.innerHTML = `<option value='${author}'>${author}</option>`;
-          authorSelector.appendChild(tmp);
-        });
+        return articleContent.authors();})
+          .then( authors => {
+            const authorSelector = template.content.querySelector('.search-author');
+            authorSelector.innerHTML = '';
+            const authorsOptionDefault = document.createElement('option');
+            authorsOptionDefault.innerHTML = '<option disabled>Возможные авторы</option>';
+            authorSelector.appendChild(authorsOptionDefault);
+            authors.forEach(function(author) {
+              const tmp = document.createElement('option');
+              tmp.innerHTML = `<option value='${author}'>${author}</option>`;
+              authorSelector.appendChild(tmp);
+            });
 
-        document.querySelector('.search').innerHTML = '';
-        const content = template.content.querySelector('.search-form').cloneNode(true);
-        document.querySelector('.search').appendChild(content);
+            document.querySelector('.search').innerHTML = '';
+            const content = template.content.querySelector('.search-form').cloneNode(true);
+            document.querySelector('.search').appendChild(content);
 
-        document.forms.search.createdAfter.addEventListener('change', createdAfterHandler);
-        document.forms.search.createdBefore.addEventListener('change', createdBeforeHandler);
-        document.forms.search.tags.value = '';
-        document.querySelector('.search-tags').addEventListener('change', tagSelectorHandler);
-        document.querySelector('.search-button-accept').addEventListener('click', filter);
-      });
+            document.forms.search.createdAfter.addEventListener('change', createdAfterHandler);
+            document.forms.search.createdBefore.addEventListener('change', createdBeforeHandler);
+            document.forms.search.tags.value = '';
+            document.querySelector('.search-tags').addEventListener('change', tagSelectorHandler);
+            document.querySelector('.search-button-accept').addEventListener('click', filter);
+          });
 
     function tagSelectorHandler(event) {
       const target = event.currentTarget.value;
@@ -770,15 +750,13 @@ function inputSubmitHandler() {
     userLog.username()
       .then((user) => {
         const article = {
-          id: '0',
           title: form.title.value,
-          img: '',
+          img: form.img.value,
           summary: form.summary.value,
           content: form.content.value,
           createdAt: new Date(),
           author: user,
         }
-        article.img = form.img.value;
 
         const tags = form.tags.value.split(' ');
 
@@ -950,7 +928,6 @@ document.addEventListener('DOMContentLoaded', startApp);
 function startApp() {
   articleRenderer.init();
   userLog.renderUser();
-  articleContent.authorsInit();
   mainPage.loadMainPage();
 
   addEvents();

@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const db = require('diskdb');
 const session = require('express-session');
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy;
-const SessionStore = require('connect-diskdb')(session);
+const SessionStore = require('connect-mongo')(session);
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -13,18 +13,73 @@ app.use(express.static(`${__dirname}/public`));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+mongoose.Promise = global.Promise;
+
+const articleConnection = mongoose.createConnection('mongodb://localhost/articles');
+const userConnection = mongoose.createConnection('mongodb://localhost/users');
+
+const articleSchema = mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  author: {
+    type: String,
+    required: true,
+    index: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  summary: {
+    type: String,
+    required: true,
+  },
+  img: {
+    type: [String],
+    required: false,
+  },
+  createdAt: {
+    type: Date,
+    index: true,
+  },
+  tags: {
+    type: [String],
+    required: false,
+    index: true,
+  },
+});
+
+const userSchema = mongoose.Schema({
+  login: {
+    type: String,
+    unique: true,
+    required: true,
+    index: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+});
+const dbArticle = articleConnection.model('Article', articleSchema);
+const dbUser = userConnection.model('User', userSchema);
+
 passport.use(new LocalStrategy(
   function(username, password, done) {
-    const users = db.users;
-    const user = users.findOne({ login: username });
-    if (!user) {
-     return done(null, false, { message: 'Incorrect username.' });
-    }
-    if (user.password != password) {
-      return done(null, false, { message: 'Incorrect password.' });
-    }
+    dbUser.findOne({ login: username })
+    .then(user => {
+      console.log(user);
+      if (user.password != password) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
       return done(null, username);
-    }
+    })
+    .catch((err) => {
+      done(err);
+    });
+  }
 ));
 
 passport.serializeUser((user, done) => {
@@ -43,82 +98,11 @@ app.use(session({
   name: 'sid',
   cookie: { maxAge: 86400000 },
   store: new SessionStore({
-    path:'./dbstore',
-    name:'SIDs',
+    url: 'mongodb://localhost/sessions',
   })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-
-db.connect(`${__dirname}/private/`, ['articles', 'users', 'tags']);
-
-getArticles().forEach(item => addTags(item));
-
-function addTags(article){
-  const tags = article.tags;
-  const tagList = db.tags.find();
-  tags.forEach((tag) => {
-    let item = tagList.find(item => {
-      if(item[tag]){
-        return true;
-      }
-      return false;
-    });
-    if(item && item[tag].some(id => id === article.id)){
-      return;
-    }
-    if(item){
-      item[tag].push(article.id);
-      db.tags.update({_id: item._id}, item);
-      return;
-    }
-    item = {};
-    item[tag] = [];
-    item[tag].push(article.id);
-    db.tags.save(item);
-  });
-}
-
-function removeTags(article){
-  const tags = article.tags;
-  const tagList = db.tags.find();
-  tags.forEach((tag) => {
-    let item = tagList.find(item => {
-      if(item[tag]){
-        return true;
-      }
-      return false;
-    });
-    let index = item[tag].indexOf(article.id);
-    item[tag].splice(index, 1);
-    if (item[tag].length === 0) {
-      db.tags.remove({_id: item._id});
-      return;
-    }
-    db.tags.update({_id: item._id}, item);
-    return;
-  });
-}
-
-function getArticlesByTags(tags){
-  let articlesID = [];
-  const tagList = db.tags.find();
-  tags.forEach(tag => {
-    let item = tagList.find(item => {
-      if(item[tag]){
-        return true;
-      }
-      return false;
-    });
-    item[tag].forEach(id => {
-      if(articlesID.some(itemID => itemID === id)){
-        return;
-      }
-      articlesID.push(id);
-    });
-  });
-  return articlesID.map(id => getArticle(id));
-}
 
 function getArticles(skip, top, filter) {
   if (skip < 0 || top < 0) {
@@ -126,64 +110,49 @@ function getArticles(skip, top, filter) {
   }
   let articles = [];
   let filterConfig;
-  let key = true;
   if (filter) {
     filterConfig = JSON.parse(filter, (keyN, value) => {
-      if(keyN === 'tags'){
-        articles = getArticlesByTags(value);
-        key = false;
-        return;
-      }
       return (keyN === 'createdAfter' || keyN === 'createdBefore') ? new Date(value) : value;
     });
   }
-  if(key){
-    articles = JSON.parse(JSON.stringify(db.articles.find()), (key, value) =>
-    (key === 'createdAt') ? new Date(value) : value);
-  }
-  skip = skip || 0;
-  top = top || articles.length;
-  const articlesNew = articles.filter(function(elem) {
-    key = true;
-    if (filterConfig) {
-      const date = elem.createdAt;
-      if(filterConfig.createdAfter && filterConfig.createdAfter > date){
-        key = false;
-      }
-      if(filterConfig.createdBefore && filterConfig.createdBefore < date){
-        key = false;
-      }
-
-      if (filterConfig.author) {
-        if(filterConfig.author !== elem.author){
-           key = false;
-        }
-      }
+  const query = {};
+  if(filterConfig){
+    if (filterConfig.author) {
+      query.author = { $regex: filterConfig.author, $options: 'i' };
     }
-    return key;
-  });
-
-  articlesNew.sort((a, b) => b.createdAt - a.createdAt);
-  return articlesNew.slice(skip, skip + top);
-}
-
-function getArticle(id){
-  return db.articles.findOne(id);
-}
-
-function getAvailableId() {
-  if (db.articles.count()) {
-    return Number(db.articles.find().slice(0).sort((a, b) => b.id - a.id)[0].id) + 1;
+    if (filterConfig.from || filterConfig.to) {
+      query.createdAt = {};
+    }
+    if (filterConfig.from) {
+      query.createdAt.$gte = filterConfig.from;
+    }
+    if (filterConfig.to) {
+      query.createdAt.$lte = filterConfig.to;
+    }
+    if (filterConfig.tags && filterConfig.tags.length > 0) {
+      query.tags = { $all: filterConfig.tags };
+    }
   }
-  return 1;
+
+  return dbArticle.find(query).sort({ createdAt: -1 })
+    .then((articles) => {
+        return articles.slice(skip, skip + top);
+      }).catch((err) => {console.log(err);});
 }
 
-function addArticle(article) {
-  if (validateArticle(article)) {
-    article.id = `${getAvailableId()}`;
-    db.articles.save(article);
-    addTags(article);
+function getArticle(id) {
+  return dbArticle.findById(id).catch((err) => {console.log(err);});
+}
+
+function addArticle(articleN) {
+  if(!validateArticle(articleN)){
+    return false;
   }
+  const article = new dbArticle(articleN);
+  article.createdAt = Date.now();
+  return article.save().catch((error) => {
+      throw error;
+    });
 }
 
 function validateArticle(article) {
@@ -202,67 +171,65 @@ function validateArticle(article) {
 }
 
 function getArticlesAmount() {
-  return db.articles.find().length;
+  return dbArticle.find()
+    .then((articles) => {
+      return articles.length;
+    }).catch((err) => {console.log(err);});
 }
 
 function editArticle(article) {
-  const tmp = db.articles.findOne({ id: article.id });
-
-  if (tmp) {
-    tmp.createdAt = new Date(tmp.createdAt);
-    delete tmp._id;
-    for (const val in article) {
-      if (val === 'title') {
-        if (article[val].length !== 0 && article[val].length < 100) {
-          tmp.title = article[val];
-        }
-        else return false;
-      }
-      else if (val === 'summary') {
-        if (article[val].length !== 0 && article[val].length < 200) {
-          tmp.summary = article[val];
-        }
-        else return false;
-      }
-      else if (val === 'content') {
-        if (article[val].length !== 0) {
-          tmp.content = article[val];
-        }
-        else return false;
-      }
-      else if (val === 'tags') {
-        removeTags(tmp);
-        tmp.tags = article[val].slice();
-        addTags(tmp);
-      }
-      else if (val === 'img'){
-        tmp.img = article[val];
-      }
-    }
-    db.articles.update({ id: article.id }, tmp);
-    return true;
+  if(!validateArticle){
+    return false;
   }
-  return false;
-}
+  const data = {
+    $set: {
+      title: article.title,
+      img: article.img,
+      summary: article.summary,
+      content: article.content,
+      tags: article.tags,
+    },
+  };
 
-function validateUser(user) {
-  const userDb = db.users.findOne({ login: user.username, password: user.password });
-  if (userDb) {
-    db.user.save(userDb);
-    return true;
-  }
+  return dbArticle.findOneAndUpdate({ _id: article._id }, data)
+    .then(() => {
+      return true;
+    })
+    .catch(() => {
+      return false;
+    });
 }
 
 app.get('/articles', (req, res) => {
-  res.json(getArticles(req.query.skip, req.query.top, req.query.filter))
+  getArticles(req.query.skip, req.query.top, req.query.filter)
+    .then((articles) => {
+      res.json(articles);
+    });
 });
 
-app.get('/article/:id', (req, res) => res.send(getArticle({ id: req.params.id })));
+app.get('/article/:id', (req, res) => {
+  getArticle(req.params.id)
+    .then((article) => {
+      res.json(article);
+    });
+});
 
-app.get('/articles/amount', (req, res) => res.send(getArticlesAmount(req.query.filter).toString()));
+app.get('/articles/amount', (req, res) => {
+  getArticlesAmount()
+    .then((amount) => {
+      res.send(amount.toString());
+    });
+});
 
 app.get('/users', (req, res) => {
-  res.json(db.users.find().map((user) => user.login));
+  dbArticle.distinct('author')
+    .then(users => users.sort((a, b) => a < b))
+      .then((users) => {
+        res.json(users);
+      })
+      .catch(() => {
+        res.json([]);
+      });
 });
 
 app.get('/user', (req, res) => {
@@ -275,9 +242,14 @@ app.get('/user', (req, res) => {
 });
 
 app.get('/tags', (req, res) => {
-  res.json(db.tags.find().map(item => {
-    return (Object.keys(item)[0] === '_id') ? undefined : Object.keys(item)[0];
-  }));
+  dbArticle.distinct('tags')
+    .then(tags => tags.sort((a, b) => a < b))
+      .then((tags) => {
+        res.json(tags);
+      })
+      .catch(() => {
+        res.json([]);
+      });
 });
 
 app.post('/login', (req, res) => {
@@ -287,7 +259,7 @@ app.post('/login', (req, res) => {
       return;
     }
     if (!user) {
-      res.send('Ошибка авторизации');
+      res.send('Autharization Error');
       return;
     }
 
@@ -316,18 +288,29 @@ app.post('/exit', (req, res) => {
 });
 
 app.post('/article', (req, res) => {
+  if(!req.user){
+    res.end(403);
+    return;
+  }
   addArticle(req.body);
   res.end();
 });
 
 app.patch('/article', (req, res) => {
+  if(!req.user){
+    res.end(403);
+    return;
+  }
   editArticle(req.body);
   res.end();
 });
 
 app.delete('/article/:id', (req, res) => {
-  removeTags(getArticle({ id: req.params.id }));
-  db.articles.remove({ id: req.params.id });
+  if(!req.user){
+    res.end(403);
+    return;
+  }
+  dbArticle.findByIdAndRemove(req.params.id).catch((err) => {console.log(err);});
   res.end();
 });
 
