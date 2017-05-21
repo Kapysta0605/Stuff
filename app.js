@@ -70,7 +70,6 @@ passport.use(new LocalStrategy(
   function(username, password, done) {
     dbUser.findOne({ login: username })
     .then(user => {
-      console.log(user);
       if (user.password != password) {
         return done(null, false, { message: 'Incorrect password.' });
       }
@@ -200,6 +199,35 @@ function editArticle(article) {
     });
 }
 
+function popularTags(){
+  const num = 2;
+  const tags = [];
+  const tmp = [];
+  return dbArticle.find()
+    .then(articles => {
+      articles.forEach((article) => {
+        article.tags.forEach((tag) => tmp.push(tag));
+      });
+      tmp.sort();
+      let a = 0;
+      if (tmp.length > 1) {
+        for (let i = 1; i < tmp.length; i++) {
+          if (tmp[i] !== tmp[i - 1] || i === (tmp.length - 1)) {
+            if ((i - a) >= num) {
+              tags.push(tmp[a]);
+              a = i;
+            }
+            a = i;
+          }
+        }
+      }
+      else if (num === 1 && tmp.length === 1) {
+        tags.push(tmp[a]);
+      }
+      return tags;
+    });
+}
+
 app.get('/articles', (req, res) => {
   getArticles(req.query.skip, req.query.top, req.query.filter)
     .then((articles) => {
@@ -245,6 +273,16 @@ app.get('/tags', (req, res) => {
   dbArticle.distinct('tags')
     .then(tags => tags.sort((a, b) => a < b))
       .then((tags) => {
+        res.json(tags);
+      })
+      .catch(() => {
+        res.json([]);
+      });
+});
+
+app.get('/tags/popular', (req, res) =>  {
+  popularTags()
+    .then(tags => {
         res.json(tags);
       })
       .catch(() => {

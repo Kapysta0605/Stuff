@@ -169,34 +169,26 @@ const articleContent = (() => {
 })();
 
 const popularTags = (() => {
-  const tags = [];
+  let tags = [];
 
-  function init(num, articles) {
-    if (typeof num !== 'number' || articles !== []) return false;
-    if (tags) {
-      tags.length = 0;
-    }
+  function init(num) {
+    return new Promise(function(resolve, reject) {
+      const oReq = new XMLHttpRequest();
 
-    const tmp = [];
-    articles.forEach((article) => {
-      article.tags.forEach((tag) => tmp.push(tag));
-    });
-    tmp.sort();
-    let a = 0;
-    if (tmp.length > 1) {
-      for (let i = 1; i < tmp.length; i++) {
-        if (tmp[i] !== tmp[i - 1] || i === (tmp.length - 1)) {
-          if ((i - a) >= num) {
-            tags.push(tmp[a]);
-            a = i;
-          }
-          a = i;
-        }
+      function handler () {
+        resolve();
+        tags = JSON.parse(oReq.responseText);
+        cleanUp();
       }
-    }
-    else if (num === 1 && tmp.length === 1) {
-      tags.push(tmp[a]);
-    }
+
+      function cleanUp () {
+        oReq.removeEventListener('load', handler);
+      }
+
+      oReq.addEventListener('load', handler);
+      oReq.open('GET', `/tags/popular`);
+      oReq.send();
+    });
   }
 
   function removeTagsFromDOM() {
@@ -789,9 +781,11 @@ const mainPage = (function() {
       .then(top => {
         articleContent.getArticles(0, top, undefined)
           .then(articles => {
-            popularTags.init(2, articles);
-            popularTags.insertTagsInDOM();
-          });
+            return popularTags.init();
+          })
+            .then(() => {
+                popularTags.insertTagsInDOM();
+              });
       });
     articleContent.getArticles(0, articleCount, filterConfig)
       .then(articles => {

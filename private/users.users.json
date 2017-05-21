@@ -1,0 +1,15 @@
+{ 
+    "_id" : ObjectId("59220f916bbe2e2f04cc4ca4"), 
+    "login" : "NightFucker", 
+    "password" : "krappa"
+}
+{ 
+    "_id" : ObjectId("59220f916bbe2e2f04cc4ca5"), 
+    "login" : "Verpad", 
+    "password" : "eliGigle"
+}
+{ 
+    "_id" : ObjectId("59220f916bbe2e2f04cc4ca6"), 
+    "login" : "Nova", 
+    "password" : "kappa123"
+}
