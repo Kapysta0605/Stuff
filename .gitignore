@@ -3,6 +3,6 @@
 *.wt
 .DS_Store/
 .idea/
-.mongoBase/
+mongoBase/
 out/
 node_modules/
