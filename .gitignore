@@ -1,5 +1,6 @@
 # содержимое файла .gitignore для IDEA
 *.iml
+*.wt
 .DS_Store/
 .idea/
 .mongoBase/
