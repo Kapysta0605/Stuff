@@ -1,7 +1,11 @@
+/* eslint-disable no-bitwise */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-confusing-arrow */
+/* eslint-disable no-console */
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const passport = require('passport')
+const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const SessionStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
@@ -63,14 +67,14 @@ const userSchema = mongoose.Schema({
     required: true,
   },
 });
-const dbArticle = articleConnection.model('Article', articleSchema);
+const DbArticle = articleConnection.model('Article', articleSchema);
 const dbUser = userConnection.model('User', userSchema);
 
 passport.use(new LocalStrategy(
   function(username, password, done) {
     dbUser.findOne({ login: username })
-    .then(user => {
-      if (user.password != password) {
+    .then((user) => {
+      if (user.password !== password) {
         return done(null, false, { message: 'Incorrect password.' });
       }
       return done(null, username);
@@ -107,15 +111,13 @@ function getArticles(skip, top, filter) {
   if (skip < 0 || top < 0) {
     return undefined;
   }
-  let articles = [];
+  const articles = [];
   let filterConfig;
   if (filter) {
-    filterConfig = JSON.parse(filter, (keyN, value) => {
-      return (keyN === 'createdAfter' || keyN === 'createdBefore') ? new Date(value) : value;
-    });
+    filterConfig = JSON.parse(filter, (keyN, value) => (keyN === 'createdAfter' || keyN === 'createdBefore') ? new Date(value) : value);
   }
   const query = {};
-  if(filterConfig){
+  if (filterConfig) {
     if (filterConfig.author) {
       query.author = { $regex: filterConfig.author, $options: 'i' };
     }
@@ -133,25 +135,23 @@ function getArticles(skip, top, filter) {
     }
   }
 
-  return dbArticle.find(query).sort({ createdAt: -1 })
-    .then((articles) => {
-        return articles.slice(skip, skip + top);
-      }).catch((err) => {console.log(err);});
+  return DbArticle.find(query).sort({ createdAt: -1 })
+    .then(articles => articles.slice(skip, skip + top)).catch((err) => { console.log(err); });
 }
 
 function getArticle(id) {
-  return dbArticle.findById(id).catch((err) => {console.log(err);});
+  return DbArticle.findById(id).catch((err) => { console.log(err); });
 }
 
 function addArticle(articleN) {
-  if(!validateArticle(articleN)){
+  if (!validateArticle(articleN)) {
     return false;
   }
-  const article = new dbArticle(articleN);
+  const article = new DbArticle(articleN);
   article.createdAt = Date.now();
   return article.save().catch((error) => {
-      throw error;
-    });
+    throw error;
+  });
 }
 
 function validateArticle(article) {
@@ -170,14 +170,12 @@ function validateArticle(article) {
 }
 
 function getArticlesAmount() {
-  return dbArticle.find()
-    .then((articles) => {
-      return articles.length;
-    }).catch((err) => {console.log(err);});
+  return DbArticle.find()
+    .then(articles => articles.length).catch((err) => { console.log(err); });
 }
 
 function editArticle(article) {
-  if(!validateArticle){
+  if (!validateArticle) {
     return false;
   }
   const data = {
@@ -190,23 +188,19 @@ function editArticle(article) {
     },
   };
 
-  return dbArticle.findOneAndUpdate({ _id: article._id }, data)
-    .then(() => {
-      return true;
-    })
-    .catch(() => {
-      return false;
-    });
+  return DbArticle.findOneAndUpdate({ _id: article._id }, data)
+    .then(() => true)
+    .catch(() => false);
 }
 
-function popularTags(){
+function popularTags() {
   const num = 2;
   const tags = [];
   const tmp = [];
-  return dbArticle.find()
-    .then(articles => {
+  return DbArticle.find()
+    .then((articles) => {
       articles.forEach((article) => {
-        article.tags.forEach((tag) => tmp.push(tag));
+        article.tags.forEach(tag => tmp.push(tag));
       });
       tmp.sort();
       let a = 0;
@@ -250,7 +244,7 @@ app.get('/articles/amount', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
-  dbArticle.distinct('author')
+  DbArticle.distinct('author')
     .then(users => users.sort((a, b) => a < b))
       .then((users) => {
         res.json(users);
@@ -270,7 +264,7 @@ app.get('/user', (req, res) => {
 });
 
 app.get('/tags', (req, res) => {
-  dbArticle.distinct('tags')
+  DbArticle.distinct('tags')
     .then(tags => tags.sort((a, b) => a < b))
       .then((tags) => {
         res.json(tags);
@@ -280,11 +274,11 @@ app.get('/tags', (req, res) => {
       });
 });
 
-app.get('/tags/popular', (req, res) =>  {
+app.get('/tags/popular', (req, res) => {
   popularTags()
-    .then(tags => {
-        res.json(tags);
-      })
+    .then((tags) => {
+      res.json(tags);
+    })
       .catch(() => {
         res.json([]);
       });
@@ -326,7 +320,7 @@ app.post('/exit', (req, res) => {
 });
 
 app.post('/article', (req, res) => {
-  if(!req.user){
+  if (!req.user) {
     res.end(403);
     return;
   }
@@ -335,7 +329,7 @@ app.post('/article', (req, res) => {
 });
 
 app.patch('/article', (req, res) => {
-  if(!req.user){
+  if (!req.user) {
     res.end(403);
     return;
   }
@@ -344,11 +338,11 @@ app.patch('/article', (req, res) => {
 });
 
 app.delete('/article/:id', (req, res) => {
-  if(!req.user){
+  if (!req.user) {
     res.end(403);
     return;
   }
-  dbArticle.findByIdAndRemove(req.params.id).catch((err) => {console.log(err);});
+  DbArticle.findByIdAndRemove(req.params.id).catch((err) => { console.log(err); });
   res.end();
 });
 

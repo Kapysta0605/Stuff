@@ -1,16 +1,17 @@
+/* eslint-disable no-underscore-dangle */
 const utils = (() => {
   function formatDate(d) {
     return `${d.getDate()}.${(d.getMonth() + 1)}.${d.getFullYear()} ${d.getHours()}:${d.getMinutes()}`;
   }
 
-  return{
+  return {
     formatDate
-  }
+  };
 })();
 
 const articleContent = (() => {
-  function authors(){
-     return new Promise(function(resolve, reject) {
+  function authors() {
+    return new Promise(function(resolve, reject) {
       const oReq = new XMLHttpRequest();
       function handler() {
         resolve(JSON.parse(oReq.responseText));
@@ -23,7 +24,7 @@ const articleContent = (() => {
 
       oReq.addEventListener('load', handler);
 
-      oReq.open('GET', `/users`);
+      oReq.open('GET', '/users');
       oReq.send();
     });
   }
@@ -98,7 +99,7 @@ const articleContent = (() => {
   }
 
   function editArticle(article) {
-    return new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject) {
       const oReq = new XMLHttpRequest();
 
       function handler() {
@@ -119,7 +120,7 @@ const articleContent = (() => {
   }
 
   function removeArticle(id) {
-    return new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject) {
       const oReq = new XMLHttpRequest();
 
       function handler() {
@@ -165,7 +166,7 @@ const articleContent = (() => {
     removeArticle,
     editArticle,
     addArticle
-  }
+  };
 })();
 
 const popularTags = (() => {
@@ -186,7 +187,7 @@ const popularTags = (() => {
       }
 
       oReq.addEventListener('load', handler);
-      oReq.open('GET', `/tags/popular`);
+      oReq.open('GET', '/tags/popular');
       oReq.send();
     });
   }
@@ -207,8 +208,8 @@ const popularTags = (() => {
     return true;
   }
 
-  function allTags(){
-     return new Promise(function(resolve, reject) {
+  function allTags() {
+    return new Promise(function(resolve, reject) {
       const oReq = new XMLHttpRequest();
       function handler() {
         resolve(JSON.parse(oReq.responseText));
@@ -221,7 +222,7 @@ const popularTags = (() => {
 
       oReq.addEventListener('load', handler);
 
-      oReq.open('GET', `/tags`);
+      oReq.open('GET', '/tags');
       oReq.send();
     });
   }
@@ -231,7 +232,7 @@ const popularTags = (() => {
     init: init,
     removeTagsFromDOM: removeTagsFromDOM,
     insertTagsInDOM: insertTagsInDOM
-  }
+  };
 })();
 
 const articleRenderer = (() => {
@@ -281,7 +282,6 @@ const articleRenderer = (() => {
   }
 
 
-
   function removeArticlesFromDom () {
     ARTICLE_LIST.innerHTML = '';
   }
@@ -315,7 +315,7 @@ const userLog = (() => {
     });
   }
 
-  function exit(){
+  function exit() {
     return new Promise((resolve) => {
       const oReq = new XMLHttpRequest();
 
@@ -329,7 +329,7 @@ const userLog = (() => {
         oReq.removeEventListener('load', handler);
       }
       oReq.addEventListener('load', handler);
-      oReq.open('POST', `/exit`);
+      oReq.open('POST', '/exit');
       oReq.setRequestHeader('content-type', 'application/json');
       oReq.send();
     });
@@ -354,7 +354,7 @@ const userLog = (() => {
   }
 
   function username() {
-    return new Promise((resolve) =>{
+    return new Promise((resolve) => {
       const oReq = new XMLHttpRequest();
 
       function handler () {
@@ -394,7 +394,7 @@ function readMoreHandler(event) {
     target === this.querySelector('#article-title')) {
     const id = this.dataset.id;
     articleContent.getArticle(id)
-      .then(article => {
+      .then((article) => {
         articleRenderer.removeArticlesFromDom();
         popularTags.removeTagsFromDOM();
         document.querySelector('.main-title').firstElementChild.textContent = '';
@@ -416,20 +416,20 @@ function readMoreHandler(event) {
         }
         userLog.username()
           .then((user) => {
-          if (!user) {
-            const footer = template.content.querySelector('.article-footer');
-            footer.removeChild(template.content.querySelector('#article-delete'));
-            footer.removeChild(template.content.querySelector('#article-change'));
-          }
-          const content = template.content.querySelector('.article').cloneNode(true);
-          document.querySelector('.article-list').appendChild(content);
-          if (user) {
-            const deleteButton = document.querySelector('#article-delete');
-            const changeButton = document.querySelector('#article-change');
-            deleteButton.addEventListener('click', articleFullDeleteHandler);
-            changeButton.addEventListener('click', articleFullChangeHandler);
-          }
-        });
+            if (!user) {
+              const footer = template.content.querySelector('.article-footer');
+              footer.removeChild(template.content.querySelector('#article-delete'));
+              footer.removeChild(template.content.querySelector('#article-change'));
+            }
+            const content = template.content.querySelector('.article').cloneNode(true);
+            document.querySelector('.article-list').appendChild(content);
+            if (user) {
+              const deleteButton = document.querySelector('#article-delete');
+              const changeButton = document.querySelector('#article-change');
+              deleteButton.addEventListener('click', articleFullDeleteHandler);
+              changeButton.addEventListener('click', articleFullChangeHandler);
+            }
+          });
 
         function articleFullDeleteHandler() {
           articleContent.removeArticle(document.querySelector('.article').dataset.id)
@@ -441,7 +441,7 @@ function readMoreHandler(event) {
         function articleFullChangeHandler() {
           const id = document.querySelector('.article').dataset.id;
           const article = articleContent.getArticle(id)
-            .then(article => {
+            .then((article) => {
               window.onscroll = 0;
               const mainTitle = document.querySelector('.main-title');
               mainTitle.firstElementChild.textContent = 'Изменить новость';
@@ -455,7 +455,7 @@ function readMoreHandler(event) {
               tmp1.innerHTML = '<option disabled>Возможные теги</option>';
               tagSelector.appendChild(tmp1);
               popularTags.allTags()
-                .then( tags => {
+                .then((tags) => {
                   tags.forEach(function(item) {
                     const tmp = document.createElement('option');
                     tmp.innerHTML = `<option value='${item}'>${item}</option>`;
@@ -472,7 +472,7 @@ function readMoreHandler(event) {
                   document.forms.add.tags.value = article.tags.join(' ');
                   const inputTags = document.querySelector('.input-tags');
                   inputTags.addEventListener('change', tagSelectorHandler);
-              });
+                });
 
               function tagSelectorHandler(event) {
                 const target = event.currentTarget.value;
@@ -515,7 +515,7 @@ function changeSubmitHandler() {
           content: form.content.value,
           createdAt: new Date(),
           author: user,
-        }
+        };
 
         const tags = form.tags.value.split(' ');
 
@@ -561,7 +561,7 @@ function addEvents() {
     tmp1.innerHTML = '<option disabled>Возможные теги</option>';
     tagSelector.appendChild(tmp1);
     popularTags.allTags()
-      .then(tags => {
+      .then((tags) => {
         tags.sort();
         tags.forEach(function(item) {
           const tmp = document.createElement('option');
@@ -611,15 +611,15 @@ function addEvents() {
     tagsOptionDefault.innerHTML = '<option disabled>Возможные теги</option>';
     tagSelector.appendChild(tagsOptionDefault);
     popularTags.allTags()
-      .then(tags => {
+      .then((tags) => {
         tags.sort();
         tags.forEach(function(tag) {
           const tmp = document.createElement('option');
           tmp.innerHTML = `<option value='${tag}'>${tag}</option>`;
           tagSelector.appendChild(tmp);
         });
-        return articleContent.authors();})
-          .then( authors => {
+        return articleContent.authors(); })
+          .then((authors) => {
             const authorSelector = template.content.querySelector('.search-author');
             authorSelector.innerHTML = '';
             const authorsOptionDefault = document.createElement('option');
@@ -679,12 +679,12 @@ function addEvents() {
       const form = document.forms.search;
       const filterConfig = {};
       const date1 = new Date(form.createdAfter.value);
-      if (date1 != 'Invalid Date') {
+      if (date1 !== 'Invalid Date') {
         filterConfig.createdAfter = date1;
       }
 
       const date2 = new Date(form.createdBefore.value);
-      if (date2 != 'Invalid Date') {
+      if (date2 !== 'Invalid Date') {
         filterConfig.createdBefore = date2;
       }
 
@@ -708,7 +708,6 @@ function addEvents() {
 
       mainPage.loadMainPage();
     }
-
   }
 
   function aSearchOpened(event) {
@@ -748,7 +747,7 @@ function inputSubmitHandler() {
           content: form.content.value,
           createdAt: new Date(),
           author: user,
-        }
+        };
 
         const tags = form.tags.value.split(' ');
 
@@ -778,17 +777,15 @@ const mainPage = (function() {
   let articleCount = 5;
   function renderArticles() {
     articleContent.getArticlesAmount()
-      .then(top => {
+      .then((top) => {
         articleContent.getArticles(0, top, undefined)
-          .then(articles => {
-            return popularTags.init();
-          })
+          .then(articles => popularTags.init())
             .then(() => {
-                popularTags.insertTagsInDOM();
-              });
+              popularTags.insertTagsInDOM();
+            });
       });
     articleContent.getArticles(0, articleCount, filterConfig)
-      .then(articles => {
+      .then((articles) => {
         articleRenderer.removeArticlesFromDom();
         articleRenderer.insertArticlesInDOM(articles);
       });
@@ -807,7 +804,7 @@ const mainPage = (function() {
 
   function moreNews() {
     articleContent.getArticlesAmount()
-      .then(count => {
+      .then((count) => {
         if (articleCount + 5 > count) {
           articleCount = count;
           window.onscroll = 0;
@@ -823,8 +820,7 @@ const mainPage = (function() {
     setFilter: setFilter,
     renderArticles: renderArticles,
     loadMainPage: loadMainPage
-  }
-
+  };
 }());
 
 function scrollMainPage() {
@@ -877,12 +873,12 @@ const loginEvents = (() => {
     const content = template.content.querySelector('.login-background').cloneNode(true);
     document.querySelector('.article-list').appendChild(content);
   }
-  return{
+  return {
     mouseout,
     mouseover,
     login,
     logout
-  }
+  };
 })();
 
 function logInfoAddEvents() {
